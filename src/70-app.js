@@ -25,6 +25,7 @@
   }
   function save() {
     try { localStorage.setItem(STORE, JSON.stringify(P)); } catch (e) { /* mode privé */ }
+    if (typeof CloudSync !== 'undefined' && CloudSync.available && CloudSync.user) CloudSync.schedulePush(P);
   }
 
   var RANKS = [
@@ -1212,6 +1213,8 @@
       '<p>' + P.xp + ' XP · ' + countDone() + ' leçons terminées · ' + exos + ' exercices réussis' +
       (r.next ? ' · encore <b style="color:var(--bone)">' + (r.next[0] - P.xp) + ' XP</b> avant ' + esc(r.next[1]) : ' · rang maximal atteint') + '</p></div>';
 
+    box.appendChild(renderAccountCard());
+
     var st = el('div', 'stats');
     st.style.marginTop = '20px';
     st.innerHTML =
@@ -1276,6 +1279,84 @@
     var span = r.next ? (r.next[0] - r.base) : 1;
     var pct = r.next ? Math.min(100, Math.round((P.xp - r.base) / span * 100)) : 100;
     $('#xpBar').style.width = pct + '%';
+  }
+
+  /* ---------- compte (facultatif) ---------- */
+  function refreshAccountUI() {
+    var slot = $('#accountSlot');
+    if (!slot) return;
+    if (typeof CloudSync === 'undefined' || !CloudSync.available) { slot.innerHTML = ''; return; }
+    if (CloudSync.user) {
+      slot.innerHTML = '<button class="nav-item" data-go="profile" style="padding:7px 10px">' +
+        '<span class="dot" style="--c:var(--vine)"></span>' + esc(CloudSync.user.email) + '</button>';
+    } else {
+      slot.innerHTML = '<button class="nav-item" data-go="profile" style="padding:7px 10px">' +
+        '<span class="dot" style="--c:var(--ash2)"></span>Créer un compte</button>';
+    }
+  }
+
+  function renderAccountCard() {
+    var box = el('div', 'card');
+    box.style.marginTop = '18px';
+    if (typeof CloudSync === 'undefined' || !CloudSync.ready) {
+      box.innerHTML = '<h3>Compte</h3><p style="color:var(--ash);font-size:14px">Vérification en cours...</p>';
+      setTimeout(function () { if (current === 'profile') viewProfile(); }, 700);
+      return box;
+    }
+    if (!CloudSync.available) {
+      box.innerHTML = '<h3>Compte</h3><p style="color:var(--ash);font-size:14px">La création de compte fonctionne sur le site en ligne, pas dans cet aperçu. Ta progression reste sauvegardée sur cet appareil.</p>';
+      return box;
+    }
+    if (CloudSync.user) {
+      box.innerHTML = '<h3>Compte</h3><p style="color:var(--ash);font-size:14px">Connecté en tant que <b style="color:var(--bone)">' +
+        esc(CloudSync.user.email) + '</b>. Ta progression se synchronise automatiquement sur tous tes appareils.</p>';
+      var out = el('button', 'btn sm ghost', 'Se déconnecter');
+      out.style.marginTop = '10px';
+      out.addEventListener('click', function () { CloudSync.deconnecter(); });
+      box.appendChild(out);
+      return box;
+    }
+    box.innerHTML = '<h3>Compte</h3><p style="color:var(--ash);font-size:14px">Optionnel : crée un compte pour retrouver ta progression sur un autre ordinateur ou téléphone. Sans compte, tout reste sauvegardé ici.</p>';
+    var form = el('div');
+    form.style.marginTop = '12px';
+    form.innerHTML =
+      '<div class="keyform"><input id="accEmail" type="email" placeholder="Email" autocomplete="email">' +
+      '<input id="accPass" type="password" placeholder="Mot de passe" autocomplete="current-password"></div>' +
+      '<div class="run-row" style="margin-top:10px">' +
+      '<button class="btn sm primary" id="accIn">Se connecter</button>' +
+      '<button class="btn sm ghost" id="accUp">Créer un compte</button></div>' +
+      '<button class="btn sm ghost" id="accForgot" style="margin-top:8px;font-size:12px;padding:4px 8px">Mot de passe oublié ?</button>' +
+      '<p id="accMsg" style="margin-top:8px;font-size:13px"></p>';
+    box.appendChild(form);
+    function lire() { return { email: box.querySelector('#accEmail').value.trim(), pass: box.querySelector('#accPass').value }; }
+    function statut(texte, ok) {
+      var msg = box.querySelector('#accMsg');
+      msg.style.color = ok === true ? 'var(--vine)' : ok === false ? 'var(--blood)' : 'var(--ash)';
+      msg.textContent = texte;
+    }
+    box.querySelector('#accIn').addEventListener('click', function () {
+      var v = lire(); statut('Un instant...');
+      CloudSync.connecter(v.email, v.pass).then(function (res) {
+        if (res.ok) { statut('Connecté !', true); }
+        else statut(res.msg, false);
+      });
+    });
+    box.querySelector('#accUp').addEventListener('click', function () {
+      var v = lire(); statut('Un instant...');
+      CloudSync.inscrire(v.email, v.pass).then(function (res) {
+        if (res.ok) { statut('Compte créé !', true); }
+        else statut(res.msg, false);
+      });
+    });
+    box.querySelector('#accForgot').addEventListener('click', function () {
+      var v = lire();
+      if (!v.email) { statut('Écris ton email ci-dessus, puis reclique.', false); return; }
+      statut('Envoi...');
+      CloudSync.reinitialiserMotDePasse(v.email).then(function (res) {
+        statut(res.ok ? 'Email envoyé si ce compte existe.' : res.msg, res.ok);
+      });
+    });
+    return box;
   }
 
   function buildNav() {
@@ -1358,6 +1439,28 @@
     refreshXP();
     BADGES.forEach(function (b) { if (P.badges.indexOf(b.id) < 0 && b.test()) P.badges.push(b.id); });
     save();
+    refreshAccountUI();
+
+    if (typeof CloudSync !== 'undefined') {
+      CloudSync.on('ready', refreshAccountUI);
+      CloudSync.on('auth', function () { refreshAccountUI(); if (current === 'profile') viewProfile(); });
+      CloudSync.on('cloud-data', function (cloudData) {
+        if (!cloudData) { save(); return; }   // rien sur ce compte : on envoie la progression locale
+        var local = countDone(), distante = Object.keys(cloudData.done || {}).length;
+        if (local > distante) {
+          var garder = confirm(
+            'Ta progression sur cet appareil (' + local + ' leçons) est plus avancée que celle enregistrée sur ton compte (' +
+            distante + ' leçons).\n\nGarder celle de cet appareil et l’envoyer sur ton compte ?\n(Annuler = utiliser celle du compte)'
+          );
+          if (garder) { save(); return; }
+        }
+        P = Object.assign({ xp: 0, done: {}, ex: {}, quiz: {}, keys: [], badges: [], games: {}, jours: [], code: {}, sandbox: {} }, cloudData);
+        try { localStorage.setItem(STORE, JSON.stringify(P)); } catch (e) { /* mode privé */ }
+        refreshXP(); buildNav();
+        if (current === 'profile') viewProfile();
+        toast('☁ Progression synchronisée', 'La progression de ton compte a été chargée.');
+      });
+    }
 
     document.addEventListener('click', function (e) {
       var t = e.target.closest('[data-go], [data-go-path]');

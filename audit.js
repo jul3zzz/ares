@@ -18,7 +18,7 @@ if (t.indexOf('détail') >= 0) {
 // 2. audit
 const ACCENTS = /[A-Za-z_$]*[À-ſ][A-Za-z_$]*/g;
 let souci = 0;
-['70-app.js', '50-pyrun.js', '60-runners.js'].forEach(f => {
+['70-app.js', '50-pyrun.js', '60-runners.js', '05-cloud.js'].forEach(f => {
   const src = fs.readFileSync(path.join(__dirname, 'src', f), 'utf8');
   const sansTexte = src.split(String.fromCharCode(192)+String.fromCharCode(45)+String.fromCharCode(591)).join("")
     .replace(/\/\/[^\n]*/g, '')

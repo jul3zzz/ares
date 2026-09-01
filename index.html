@@ -338,6 +338,8 @@ pre.code .nb{color:#6FC6D6} pre.code .nu{color:#F6B23D} pre.code .tg{color:#F08B
     <span><b>ARES</b><small>Forge du code</small></span>
   </button>
 
+  <div id="accountSlot" style="padding:0 6px 10px"></div>
+
   <div class="rail-label">Parcours libres</div>
   <div id="navPaths"></div>
 
@@ -364,6 +366,164 @@ pre.code .nb{color:#6FC6D6} pre.code .nu{color:#F6B23D} pre.code .tg{color:#F08B
 
 <div id="toasts" aria-live="polite"></div>
 <canvas id="sparks" aria-hidden="true"></canvas>
+
+<script>
+/* ===== 05-cloud.js ===== */
+/* =====================================================================
+   ARES — compte et synchronisation de la progression (Firebase).
+
+   Optionnel de bout en bout : sans compte, tout continue de fonctionner
+   exactement comme avant (progression uniquement dans ce navigateur).
+   Avec un compte, la progression se synchronise entre tous les appareils.
+
+   Ne fonctionne que dans un vrai navigateur avec acces reseau : sur la forge
+   hebergee (GitHub Pages), le compte est disponible ; dans un apercu a
+   politique reseau stricte, l'import distant echoue et le module se
+   desactive proprement (CloudSync.available reste false).
+   ===================================================================== */
+var CloudSync = (function () {
+  'use strict';
+  if (typeof document === 'undefined') return { available: false, ready: true, on: function () {}, schedulePush: function () {} };
+
+  // Identifiants publics du projet Firebase : ce ne sont pas des secrets,
+  // la securite vient des regles Firestore, pas de la confidentialite de ces
+  // valeurs (elles sont visibles par construction dans le code cote client).
+  var FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDoasHqf3IIlAb7FRNwHmD67UaebUV2wwQ",
+    authDomain: "ares-forge.firebaseapp.com",
+    projectId: "ares-forge",
+    storageBucket: "ares-forge.firebasestorage.app",
+    messagingSenderId: "729912554153",
+    appId: "1:729912554153:web:311aa1ae8d6c453dbd6fb8"
+  };
+  var SDK = "https://www.gstatic.com/firebasejs/10.14.1/";
+  var COLLECTION = "ares_progress";
+
+  var state = { available: false, ready: false, user: null, db: null, auth: null, fns: null };
+  var listeners = [];
+  var pushTimer = null;
+  var pendingPush = null;
+
+  function on(evt, cb) { listeners.push({ evt: evt, cb: cb }); }
+  function fire(evt, detail) { listeners.forEach(function (l) { if (l.evt === evt) l.cb(detail); }); }
+
+  function messageErreur(code) {
+    var table = {
+      'auth/email-already-in-use': "Cet email est deja utilise. Essaie de te connecter a la place.",
+      'auth/invalid-email': "Adresse email invalide.",
+      'auth/missing-password': "Le mot de passe ne peut pas etre vide.",
+      'auth/weak-password': "Le mot de passe doit faire au moins 6 caracteres.",
+      'auth/wrong-password': "Email ou mot de passe incorrect.",
+      'auth/invalid-credential': "Email ou mot de passe incorrect.",
+      'auth/user-not-found': "Aucun compte avec cet email. Cree un compte d'abord.",
+      'auth/too-many-requests': "Trop de tentatives. Reessaie dans quelques minutes.",
+      'auth/network-request-failed': "Pas de connexion internet."
+    };
+    return table[code] || "Une erreur est survenue. Reessaie.";
+  }
+
+  var initPromise = null;
+  function init() {
+    if (initPromise) return initPromise;
+    initPromise = (function () {
+      if (FIREBASE_CONFIG.apiKey === 'REMPLACER') { state.ready = true; return Promise.resolve(); }
+      return Promise.all([
+        import(/* webpackIgnore: true */ SDK + 'firebase-app.js'),
+        import(/* webpackIgnore: true */ SDK + 'firebase-auth.js'),
+        import(/* webpackIgnore: true */ SDK + 'firebase-firestore.js')
+      ]).then(function (mods) {
+        var appMod = mods[0], authMod = mods[1], fsMod = mods[2];
+        var app = appMod.initializeApp(FIREBASE_CONFIG);
+        state.auth = authMod.getAuth(app);
+        state.db = fsMod.getFirestore(app);
+        state.fns = { authMod: authMod, fsMod: fsMod };
+        state.available = true;
+        authMod.onAuthStateChanged(state.auth, function (user) {
+          state.user = user;
+          fire('auth', user);
+          if (user) chargerDepuisCloud(user.uid);
+        });
+      }).catch(function () {
+        state.available = false;
+      }).then(function () {
+        state.ready = true;
+        fire('ready', state.available);
+      });
+    })();
+    return initPromise;
+  }
+
+  function chargerDepuisCloud(uid) {
+    var fsMod = state.fns.fsMod;
+    fsMod.getDoc(fsMod.doc(state.db, COLLECTION, uid)).then(function (snap) {
+      fire('cloud-data', snap.exists() ? snap.data().donnees : null);
+    }).catch(function () { /* pas grave : on reste sur la progression locale */ });
+  }
+
+  function schedulePush(progres) {
+    if (!state.available || !state.user) return;
+    pendingPush = progres;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(function () { pousserMaintenant(); }, 1200);
+  }
+
+  function pousserMaintenant() {
+    if (!state.available || !state.user || !pendingPush) return;
+    var fsMod = state.fns.fsMod;
+    var ref = fsMod.doc(state.db, COLLECTION, state.user.uid);
+    fsMod.setDoc(ref, { donnees: pendingPush, maj: fsMod.serverTimestamp(), email: state.user.email })
+      .catch(function () { /* la prochaine modification relancera l'envoi */ });
+  }
+
+  function inscrire(email, motDePasse) {
+    return init().then(function () {
+      if (!state.available) return { ok: false, msg: "Compte indisponible dans cet apercu." };
+      return state.fns.authMod.createUserWithEmailAndPassword(state.auth, email, motDePasse)
+        .then(function (cred) { return { ok: true, user: cred.user }; })
+        .catch(function (e) { return { ok: false, msg: messageErreur(e.code) }; });
+    });
+  }
+
+  function connecter(email, motDePasse) {
+    return init().then(function () {
+      if (!state.available) return { ok: false, msg: "Compte indisponible dans cet apercu." };
+      return state.fns.authMod.signInWithEmailAndPassword(state.auth, email, motDePasse)
+        .then(function (cred) { return { ok: true, user: cred.user }; })
+        .catch(function (e) { return { ok: false, msg: messageErreur(e.code) }; });
+    });
+  }
+
+  function reinitialiserMotDePasse(email) {
+    return init().then(function () {
+      if (!state.available) return { ok: false, msg: "Compte indisponible dans cet apercu." };
+      return state.fns.authMod.sendPasswordResetEmail(state.auth, email)
+        .then(function () { return { ok: true }; })
+        .catch(function (e) { return { ok: false, msg: messageErreur(e.code) }; });
+    });
+  }
+
+  function deconnecter() {
+    if (state.available && state.auth) state.fns.authMod.signOut(state.auth);
+  }
+
+  init();
+
+  return {
+    on: on,
+    init: init,
+    inscrire: inscrire,
+    connecter: connecter,
+    deconnecter: deconnecter,
+    reinitialiserMotDePasse: reinitialiserMotDePasse,
+    schedulePush: schedulePush,
+    get available() { return state.available; },
+    get ready() { return state.ready; },
+    get user() { return state.user; }
+  };
+})();
+
+
+</script>
 
 <script>
 /* ===== 10-data-python.js ===== */
@@ -6338,6 +6498,7 @@ var Runner = (function () {
   }
   function save() {
     try { localStorage.setItem(STORE, JSON.stringify(P)); } catch (e) { /* mode privé */ }
+    if (typeof CloudSync !== 'undefined' && CloudSync.available && CloudSync.user) CloudSync.schedulePush(P);
   }
 
   var RANKS = [
@@ -7525,6 +7686,8 @@ var Runner = (function () {
       '<p>' + P.xp + ' XP · ' + countDone() + ' leçons terminées · ' + exos + ' exercices réussis' +
       (r.next ? ' · encore <b style="color:var(--bone)">' + (r.next[0] - P.xp) + ' XP</b> avant ' + esc(r.next[1]) : ' · rang maximal atteint') + '</p></div>';
 
+    box.appendChild(renderAccountCard());
+
     var st = el('div', 'stats');
     st.style.marginTop = '20px';
     st.innerHTML =
@@ -7589,6 +7752,84 @@ var Runner = (function () {
     var span = r.next ? (r.next[0] - r.base) : 1;
     var pct = r.next ? Math.min(100, Math.round((P.xp - r.base) / span * 100)) : 100;
     $('#xpBar').style.width = pct + '%';
+  }
+
+  /* ---------- compte (facultatif) ---------- */
+  function refreshAccountUI() {
+    var slot = $('#accountSlot');
+    if (!slot) return;
+    if (typeof CloudSync === 'undefined' || !CloudSync.available) { slot.innerHTML = ''; return; }
+    if (CloudSync.user) {
+      slot.innerHTML = '<button class="nav-item" data-go="profile" style="padding:7px 10px">' +
+        '<span class="dot" style="--c:var(--vine)"></span>' + esc(CloudSync.user.email) + '</button>';
+    } else {
+      slot.innerHTML = '<button class="nav-item" data-go="profile" style="padding:7px 10px">' +
+        '<span class="dot" style="--c:var(--ash2)"></span>Créer un compte</button>';
+    }
+  }
+
+  function renderAccountCard() {
+    var box = el('div', 'card');
+    box.style.marginTop = '18px';
+    if (typeof CloudSync === 'undefined' || !CloudSync.ready) {
+      box.innerHTML = '<h3>Compte</h3><p style="color:var(--ash);font-size:14px">Vérification en cours...</p>';
+      setTimeout(function () { if (current === 'profile') viewProfile(); }, 700);
+      return box;
+    }
+    if (!CloudSync.available) {
+      box.innerHTML = '<h3>Compte</h3><p style="color:var(--ash);font-size:14px">La création de compte fonctionne sur le site en ligne, pas dans cet aperçu. Ta progression reste sauvegardée sur cet appareil.</p>';
+      return box;
+    }
+    if (CloudSync.user) {
+      box.innerHTML = '<h3>Compte</h3><p style="color:var(--ash);font-size:14px">Connecté en tant que <b style="color:var(--bone)">' +
+        esc(CloudSync.user.email) + '</b>. Ta progression se synchronise automatiquement sur tous tes appareils.</p>';
+      var out = el('button', 'btn sm ghost', 'Se déconnecter');
+      out.style.marginTop = '10px';
+      out.addEventListener('click', function () { CloudSync.deconnecter(); });
+      box.appendChild(out);
+      return box;
+    }
+    box.innerHTML = '<h3>Compte</h3><p style="color:var(--ash);font-size:14px">Optionnel : crée un compte pour retrouver ta progression sur un autre ordinateur ou téléphone. Sans compte, tout reste sauvegardé ici.</p>';
+    var form = el('div');
+    form.style.marginTop = '12px';
+    form.innerHTML =
+      '<div class="keyform"><input id="accEmail" type="email" placeholder="Email" autocomplete="email">' +
+      '<input id="accPass" type="password" placeholder="Mot de passe" autocomplete="current-password"></div>' +
+      '<div class="run-row" style="margin-top:10px">' +
+      '<button class="btn sm primary" id="accIn">Se connecter</button>' +
+      '<button class="btn sm ghost" id="accUp">Créer un compte</button></div>' +
+      '<button class="btn sm ghost" id="accForgot" style="margin-top:8px;font-size:12px;padding:4px 8px">Mot de passe oublié ?</button>' +
+      '<p id="accMsg" style="margin-top:8px;font-size:13px"></p>';
+    box.appendChild(form);
+    function lire() { return { email: box.querySelector('#accEmail').value.trim(), pass: box.querySelector('#accPass').value }; }
+    function statut(texte, ok) {
+      var msg = box.querySelector('#accMsg');
+      msg.style.color = ok === true ? 'var(--vine)' : ok === false ? 'var(--blood)' : 'var(--ash)';
+      msg.textContent = texte;
+    }
+    box.querySelector('#accIn').addEventListener('click', function () {
+      var v = lire(); statut('Un instant...');
+      CloudSync.connecter(v.email, v.pass).then(function (res) {
+        if (res.ok) { statut('Connecté !', true); }
+        else statut(res.msg, false);
+      });
+    });
+    box.querySelector('#accUp').addEventListener('click', function () {
+      var v = lire(); statut('Un instant...');
+      CloudSync.inscrire(v.email, v.pass).then(function (res) {
+        if (res.ok) { statut('Compte créé !', true); }
+        else statut(res.msg, false);
+      });
+    });
+    box.querySelector('#accForgot').addEventListener('click', function () {
+      var v = lire();
+      if (!v.email) { statut('Écris ton email ci-dessus, puis reclique.', false); return; }
+      statut('Envoi...');
+      CloudSync.reinitialiserMotDePasse(v.email).then(function (res) {
+        statut(res.ok ? 'Email envoyé si ce compte existe.' : res.msg, res.ok);
+      });
+    });
+    return box;
   }
 
   function buildNav() {
@@ -7671,6 +7912,28 @@ var Runner = (function () {
     refreshXP();
     BADGES.forEach(function (b) { if (P.badges.indexOf(b.id) < 0 && b.test()) P.badges.push(b.id); });
     save();
+    refreshAccountUI();
+
+    if (typeof CloudSync !== 'undefined') {
+      CloudSync.on('ready', refreshAccountUI);
+      CloudSync.on('auth', function () { refreshAccountUI(); if (current === 'profile') viewProfile(); });
+      CloudSync.on('cloud-data', function (cloudData) {
+        if (!cloudData) { save(); return; }   // rien sur ce compte : on envoie la progression locale
+        var local = countDone(), distante = Object.keys(cloudData.done || {}).length;
+        if (local > distante) {
+          var garder = confirm(
+            'Ta progression sur cet appareil (' + local + ' leçons) est plus avancée que celle enregistrée sur ton compte (' +
+            distante + ' leçons).\n\nGarder celle de cet appareil et l’envoyer sur ton compte ?\n(Annuler = utiliser celle du compte)'
+          );
+          if (garder) { save(); return; }
+        }
+        P = Object.assign({ xp: 0, done: {}, ex: {}, quiz: {}, keys: [], badges: [], games: {}, jours: [], code: {}, sandbox: {} }, cloudData);
+        try { localStorage.setItem(STORE, JSON.stringify(P)); } catch (e) { /* mode privé */ }
+        refreshXP(); buildNav();
+        if (current === 'profile') viewProfile();
+        toast('☁ Progression synchronisée', 'La progression de ton compte a été chargée.');
+      });
+    }
 
     document.addEventListener('click', function (e) {
       var t = e.target.closest('[data-go], [data-go-path]');
