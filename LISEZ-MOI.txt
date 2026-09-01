@@ -1,0 +1,111 @@
+ARES — la forge du code
+=======================
+Site d'apprentissage de Python, HTML/CSS et JavaScript pour collegiens et lyceens.
+90 lecons, 133 exercices corriges automatiquement, 128 questions de quiz,
+9 jeux, 6 projets guides. Tout tourne dans le navigateur, sans serveur.
+
+
+LES FICHIERS
+------------
+index.html      La version autonome. Double-clic = le site s'ouvre. C'est ce
+                fichier qu'on met en ligne (GitHub Pages, Netlify, une cle USB...).
+ares.html       La meme chose, sans <html>/<head>/<body> : c'est la source de
+                l'artefact Claude (la page est enveloppee automatiquement).
+src/            Le code source, decoupe en morceaux :
+                  shell.html            styles + squelette de l'interface
+                  10/11/12-data-*.js    les 3 parcours libres (contenu pedagogique)
+                  20/21/22-data-pro-*.js les 3 parcours ULTRA (payants)
+                  30-games.js           les banques des 4 jeux
+                  50-pyrun.js           l'interpreteur Python ecrit en JavaScript
+                  60-runners.js         execution JS/HTML + correction des exercices
+                  70-app.js             l'application (navigation, ateliers, XP)
+build.js        Assemble src/ vers index.html et ares.html.   ->  node build.js
+_test.js        2085 verifications automatiques.              ->  node _test.js
+audit.js        Verifie qu'aucun accent ne traine dans du code JavaScript.
+
+REGLE D'OR : on ne modifie JAMAIS index.html ou ares.html a la main.
+On modifie src/, puis on relance :   node _test.js  &&  node build.js
+
+
+LES CLES ARES ULTRA
+-------------------
+Cle unique (ouvre les 3 parcours ULTRA) :
+    ARES-ULTRA-2026
+    PLUS-ULTRA            (meme effet, plus facile a retenir)
+
+Cles par parcours :
+    ARES-PYTHON-PRO
+    ARES-WEB-PRO
+    ARES-JS-PRO
+
+La saisie ignore les minuscules/majuscules. Une cle activee reste valable
+pour toujours sur l'appareil (elle est enregistree dans le navigateur).
+
+Pour changer les cles : dans src/70-app.js, objet KEYS. Les valeurs sont
+encodees en base64 pour qu'on ne les lise pas au premier coup d'oeil.
+Exemple pour fabriquer une nouvelle cle, dans la console du navigateur :
+    btoa("MA-NOUVELLE-CLE")
+
+
+IMPORTANT SI TU VENDS L'ACCES
+-----------------------------
+Le verrou est cote navigateur : il est parfait pour distribuer un acces a des
+eleves ou pour une demo, mais quelqu'un de motive peut lire le code source de
+la page et retrouver les cles. Pour une vraie vente en ligne, il faut :
+  1. un serveur qui garde le contenu ULTRA et ne l'envoie qu'apres paiement
+     verifie (Stripe, Lemon Squeezy, Gumroad...),
+  2. des cles a usage unique enregistrees dans une base de donnees.
+Tant qu'on reste sur un seul fichier HTML, aucune protection n'est totale.
+
+Modele economique simple qui fonctionne sans serveur : vendre la cle
+(via Gumroad ou Stripe Payment Link), et l'envoyer par mail apres l'achat.
+
+
+AJOUTER DU CONTENU
+------------------
+Une lecon = un objet dans le tableau `lessons` d'un jour/module :
+
+  {
+    id: 'py-1-8',                        // identifiant unique
+    title: 'Titre de la lecon',
+    kind: 'lecon',                       // lecon | jeu | projet | boss
+    xp: 25,
+    goal: "Ce que l'eleve saura faire a la fin.",
+    blocks: [                            // la colonne de gauche
+      { t: 'p', v: "Un paragraphe, le HTML simple est autorise." },
+      { t: 'h', v: 'Un sous-titre' },
+      { t: 'ul', v: ['point 1', 'point 2'] },
+      { t: 'code', run: true, v: `print("essayable !")` },
+      { t: 'tip', h: 'Astuce', v: "..." },      // tip | warn | key
+      { t: 'analogy', v: "<b>L'image a retenir :</b> ..." },
+      { t: 'table', head: ['A', 'B'], rows: [['x', 'y']] }
+    ],
+    ex: [                                // la colonne de droite
+      {
+        brief: "Consigne (HTML autorise).",
+        starter: 'code de depart',
+        hint: 'indice',
+        solution: 'la solution de reference',
+        tests: [{ in: ['saisie'], expect: 'sortie attendue exacte' }],
+        must: [['regex', 'message si absent']]
+      }
+    ],
+    quiz: [{ q: '...', opts: ['a', 'b'], a: 1, why: 'explication' }]
+  }
+
+Le banc d'essai verifie automatiquement que CHAQUE solution de reference
+passe SES PROPRES tests, que chaque bloc `run: true` s'execute sans erreur,
+et qu'aucun accent ne s'est glisse dans un nom de variable. Si `node _test.js`
+est vert, le contenu est bon.
+
+
+CE QUE COUVRE L'INTERPRETEUR PYTHON (src/50-pyrun.js)
+----------------------------------------------------
+variables, types, f-strings (avec formats :.2f, :<10, :>8), operateurs,
+conditions, boucles for/while/break/continue, listes, tuples, dictionnaires,
+tranches [a:b:c], fonctions (defauts, arguments nommes, *args, lambda),
+comprehensions de liste et de dictionnaire, expressions generatrices,
+classes, heritage, super(), __init__, __str__, exceptions try/except/finally
+et raise, modules math, random et time, plus 40 methodes de chaines/listes/dicos.
+Les erreurs sont traduites en francais avec le numero de ligne.
+Une boucle infinie est coupee au bout de 900 000 etapes.
