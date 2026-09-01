@@ -4,28 +4,33 @@
 const fs = require('fs');
 const path = require('path');
 
-// 1. reparation du nom de variable casse par la passe d'accents
-const p = path.join(__dirname, 'src', '70-app.js');
-let t = fs.readFileSync(p, 'utf8');
-if (t.indexOf('détail') >= 0) {
-  t = t.split('détail').join('detailHTML').split('var detail =').join('var detailHTML =')
-       .split('detail = ').join('detailHTML = ');
-  t = t.split('detailHTMLHTML').join('detailHTML');
-  fs.writeFileSync(p, t, 'utf8');
-  console.log('variable « detail » reparee');
+// Retire commentaires et chaines de caracteres d'une source JS, en suivant
+// le caractere de guillemet reellement ouvert (au lieu de 3 passes regex
+// independantes, qui se font piéger des qu'une chaine double contient une
+// apostrophe — exactement le bug que ce fichier a lui-meme provoque).
+function sansChainesNiCommentaires(src) {
+  let out = '', i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (c === '/' && src[i + 1] === '/') { while (i < src.length && src[i] !== '\n') i++; continue; }
+    if (c === '/' && src[i + 1] === '*') { i += 2; while (i < src.length && !(src[i] === '*' && src[i + 1] === '/')) i++; i += 2; continue; }
+    if (c === '"' || c === "'" || c === '`') {
+      const q = c; i++;
+      while (i < src.length && src[i] !== q) { if (src[i] === '\\') i++; i++; }
+      i++;
+      out += q + q;
+      continue;
+    }
+    out += c; i++;
+  }
+  return out;
 }
 
-// 2. audit
 const ACCENTS = /[A-Za-z_$]*[À-ſ][A-Za-z_$]*/g;
 let souci = 0;
 ['70-app.js', '50-pyrun.js', '60-runners.js', '05-cloud.js'].forEach(f => {
   const src = fs.readFileSync(path.join(__dirname, 'src', f), 'utf8');
-  const sansTexte = src.split(String.fromCharCode(192)+String.fromCharCode(45)+String.fromCharCode(591)).join("")
-    .replace(/\/\/[^\n]*/g, '')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
-    .replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
-    .replace(/`(?:[^`\\]|\\.)*`/g, '``');
+  const sansTexte = sansChainesNiCommentaires(src);
   const trouves = [...new Set(sansTexte.match(ACCENTS) || [])];
   if (trouves.length) {
     souci += trouves.length;

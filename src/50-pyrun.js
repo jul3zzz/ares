@@ -207,7 +207,12 @@ var PyRun = (function () {
         st = this.importStmt();
       } else {
         var e = this.exprList();
-        if (this.at('OP') && /^(\+=|-=|\*=|\/=|%=|\*\*=|\/\/=)$/.test(this.peek().v)) {
+        if (this.atOp(':') && (e.type === 'Name' || e.type === 'Attr' || e.type === 'Index')) {
+          // annotation de type sur une variable : x: int = 5, ou juste x: int
+          this.next(); this.expr();          // l'annotation elle-meme n'a aucun effet a l'execution
+          if (this.atOp('=')) { this.next(); st = { type: 'Assign', targets: [e], value: this.exprList(), line: line }; }
+          else st = { type: 'Pass', line: line };
+        } else if (this.at('OP') && /^(\+=|-=|\*=|\/=|%=|\*\*=|\/\/=)$/.test(this.peek().v)) {
           var op = this.next().v.slice(0, -1);
           st = { type: 'AugAssign', target: e, op: op, value: this.exprList(), line: line };
         } else if (this.atOp('=')) {
@@ -545,6 +550,10 @@ var PyRun = (function () {
   }
   function repr(v) {
     if (typeof v === 'string') return v.indexOf("'") >= 0 && v.indexOf('"') < 0 ? '"' + v + '"' : "'" + v.replace(/'/g, "\\'") + "'";
+    if (v instanceof PyObj && !v.cls.isExc) {
+      var f = findMethod(v.cls, '__repr__');
+      if (f) return str(callFunction(new PyBound(v, f, findOwner(v.cls, '__repr__')), [], {}, 0));
+    }
     return str(v);
   }
   function typeName(v) {
@@ -1191,6 +1200,11 @@ var PyRun = (function () {
   /* ---------- builtins ---------- */
   function B(name, fn) { fn.pyname = name; return fn; }
   var BUILTINS = {
+    // Chaque script execute par la forge est le point d'entree, exactement
+    // comme quand on lance un fichier .py directement : __name__ vaut donc
+    // toujours "__main__". Ceci autorise l'idiome tres repandu
+    // « if __name__ == "__main__": » sans provoquer de NameError.
+    __name__: '__main__',
     print: B('print', function (a, k, line) {
       var sep = k.sep !== undefined ? k.sep : ' ', end = k.end !== undefined ? k.end : '\n';
       write(a.map(str).join(sep) + end);

@@ -1174,31 +1174,83 @@
   function viewMemo() {
     var box = el('div');
     box.innerHTML = '<div class="crumb"><button data-go="home">Accueil</button> · Aide-mémoire</div>' +
-      '<div class="sec-head"><div><h2>Aide-mémoire</h2><p>Tout ce qu’il faut se rappeler, sur une page. ' +
-      'Personne n’apprend une syntaxe par coeur : on la retrouve, jusqu’a ce qu’elle rentre toute seule.</p></div></div>';
+      '<div class="sec-head"><div><h2>Aide-mémoire</h2><p>Vingt-cinq fiches, une par notion. Personne n’apprend ' +
+      'une syntaxe par cœur : on la retrouve ici, jusqu’à ce qu’elle rentre toute seule.</p></div></div>';
 
-    var memo = [
-      { t: 'Python — les bases', lang: 'python', code: 'x = 5                  # nombre entier\ny = 3.5                # nombre a virgule\nnom = "Nova"           # texte\nok = True              # booleen\n\nprint(f"{nom} a {x} vies")\n\nage = int(input("Age ? "))    # saisie convertie' },
-      { t: 'Python — conditions et boucles', lang: 'python', code: 'if note >= 16:\n    print("Très bien")\nelif note >= 10:\n    print("Admis")\nelse:\n    print("A revoir")\n\nfor i in range(1, 11):     # 1 a 10\n    print(i)\n\nwhile vies > 0:\n    vies -= 1' },
-      { t: 'Python — listes et dictionnaires', lang: 'python', code: 'l = [1, 2, 3]\nl.append(4)      # ajouter\nl[0]             # premier\nl[-1]            # dernier\nl[1:3]           # tranche\nlen(l), sum(l), max(l), sorted(l)\n\nd = {"nom": "Nova", "vie": 100}\nd["vie"] = 90\nd.get("mana", 0)\nfor clé, valeur in d.items():\n    print(clé, valeur)' },
-      { t: 'Python — fonctions et classes', lang: 'python', code: 'def moyenne(notes):\n    """Renvoie la moyenne."""\n    return sum(notes) / len(notes)\n\nclass Joueur:\n    def __init__(self, nom, vie=100):\n        self.nom = nom\n        self.vie = vie\n\n    def subir(self, degats):\n        self.vie -= degats\n\ntry:\n    n = int("abc")\nexcept ValueError:\n    print("pas un nombre")' },
-      { t: 'HTML — la structure', lang: 'html', code: '<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>Mon site</title>\n</head>\n<body>\n  <header><h1>Titre</h1></header>\n  <nav>Menu</nav>\n  <main>\n    <section><h2>Partie</h2><p>Texte</p></section>\n  </main>\n  <footer>Pied</footer>\n</body>\n</html>' },
-      { t: 'HTML — les balises courantes', lang: 'html', code: '<h1> a <h6>          titres\n<p>                  paragraphe\n<strong> <em>        important, accentue\n<ul> <ol> <li>       listes\n<a href="...">       lien\n<img src="..." alt="...">\n<div> <span>         conteneurs neutres\n<form> <label for="x"> <input id="x"> <button>' },
-      { t: 'CSS — les essentiels', lang: 'html', code: '<style>\n  :root { --accent: #E2762E; }\n\n  .carte {\n    color: var(--accent);\n    background: #241917;\n    padding: 16px;          /* interieur */\n    margin: 12px;           /* exterieur */\n    border: 1px solid #444;\n    border-radius: 10px;\n    width: 100%;\n    max-width: 500px;\n  }\n\n  .rangee { display: flex; gap: 12px; justify-content: space-between; align-items: center; }\n  .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }\n\n  @media (max-width: 600px) { .carte { padding: 10px; } }\n</style>' },
-      { t: 'JavaScript — les bases', lang: 'js', code: 'const nom = "Nova";     // ne change pas\nlet score = 0;          // change\n\nconsole.log(`${nom} : ${score} points`);\n\nif (score >= 10 && vivant) { ... } else { ... }\n\nfor (let i = 0; i < 5; i++) { ... }\nfor (const x of tableau) { ... }\n\nconst double = (x) => x * 2;' },
-      { t: 'JavaScript — tableaux et objets', lang: 'js', code: 'const t = [1, 2, 3];\nt.push(4); t.pop();\nt.length; t.includes(2);\nt.map(n => n * 2);\nt.filter(n => n > 1);\nt.reduce((a, b) => a + b, 0);\n\nconst o = { nom: "Nova", vie: 100 };\no.vie = 80;\nObject.keys(o);\n\nJSON.stringify(o);  JSON.parse(texte);' },
-      { t: 'JavaScript — le DOM', lang: 'js', code: 'const el = document.querySelector("#id");\nconst tous = document.querySelectorAll(".classe");\n\nel.textContent = "Nouveau texte";\nel.style.background = "#E2762E";\nel.classList.add("actif");\nel.classList.toggle("ouvert");\n\nel.addEventListener("click", (e) => {\n  e.preventDefault();\n  console.log(e.target);\n});\n\nconst n = document.createElement("li");\nn.textContent = "Item";\nliste.appendChild(n);' }
+    var sections = [
+      { titre: 'Python', color: 'var(--serpent)', fiches: [
+        { t: 'Variables et types', d: "Les quatre types de base, et comment les mélanger", hl: 'python',
+          code: 'nom = "Nova"           # texte (str)\nage = 14               # entier (int)\ntaille = 1.62          # decimal (float)\nmajeur = False         # booleen (bool)\n\nprint(f"{nom} a {age} ans")\nprint(type(age), type(taille))\n\nage = int(input("Age : "))   # une saisie est toujours du texte' },
+        { t: 'Texte et f-strings', d: "Assembler, transformer et découper des chaînes", hl: 'python',
+          code: 'mot = "Python"\nprint(mot.upper(), mot.lower())\nprint(mot[0], mot[-1], mot[1:4])\nprint(len(mot))\n\nprix = 12.5\nprint(f"Total : {prix:.2f} euros")\nprint(f"{mot:<10}|")          # aligne a gauche sur 10\n\nphrase = "un jeu video"\nprint(phrase.split())         # -> liste de mots\nprint("-".join(["a", "b"]))   # -> "a-b"' },
+        { t: 'Conditions et boucles', d: "Choisir un chemin, répéter une action", hl: 'python',
+          code: 'if note >= 16:\n    print("Tres bien")\nelif note >= 10:\n    print("Admis")\nelse:\n    print("A revoir")\n\nfor i in range(1, 11):     # 1 a 10\n    print(i)\n\nwhile vies > 0:\n    vies -= 1' },
+        { t: 'Listes et tuples', d: "Ranger plusieurs valeurs, dans l'ordre", hl: 'python',
+          code: 'l = [3, 1, 2]\nl.append(4)          # ajouter a la fin\nl.sort()             # trier sur place\nl[0], l[-1]          # premier, dernier\nl[1:3]               # tranche\nlen(l), sum(l), max(l)\n\nt = (1, 2)           # tuple : ne change plus jamais\na, b = t             # depaquetage\n\ncarres = [n * n for n in range(5)]   # comprehension' },
+        { t: 'Dictionnaires', d: "Associer une clé à une valeur", hl: 'python',
+          code: 'joueur = {"nom": "Nova", "vie": 100}\njoueur["vie"] = 90        # modifier\njoueur.get("mana", 0)     # 0 si absent, sans planter\n"nom" in joueur            # True\n\nfor cle, valeur in joueur.items():\n    print(cle, valeur)\n\nnotes = {"maths": 15, "svt": 12}\nmoyenne = sum(notes.values()) / len(notes)' },
+        { t: 'Fonctions', d: "Écrire une fois, réutiliser partout", hl: 'python',
+          code: 'def moyenne(notes):\n    """Renvoie la moyenne d\'une liste."""\n    return sum(notes) / len(notes)\n\ndef saluer(nom, message="Bonjour"):\n    return f"{message} {nom} !"\n\nprint(saluer("Lea"))\nprint(saluer("Sam", message="Salut"))\n\ncarre = lambda x: x * x' },
+        { t: 'Classes et héritage', d: "Modéliser tes propres objets", hl: 'python',
+          code: 'class Personnage:\n    def __init__(self, nom, vie=100):\n        self.nom = nom\n        self.vie = vie\n\n    def subir(self, degats):\n        self.vie -= degats\n\n    def __str__(self):\n        return f"{self.nom} ({self.vie} PV)"\n\n\nclass Magicien(Personnage):\n    def __init__(self, nom, mana):\n        super().__init__(nom)\n        self.mana = mana' },
+        { t: 'Exceptions et modules', d: "Ne jamais planter, et emprunter des outils tout faits", hl: 'python',
+          code: 'try:\n    n = int(input("Nombre : "))\nexcept ValueError:\n    print("Ce n\'est pas un nombre")\nfinally:\n    print("Termine")\n\nimport math\nimport random\n\nprint(math.sqrt(16), math.pi)\nprint(random.randint(1, 6))' }
+      ] },
+      { titre: 'HTML & CSS', color: 'var(--bronze)', fiches: [
+        { t: 'Structure de page', d: "Le squelette présent dans chaque page HTML", hl: 'html',
+          code: '<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>Mon site</title>\n</head>\n<body>\n  <header><h1>Titre</h1></header>\n  <nav>Menu</nav>\n  <main>\n    <section><h2>Partie</h2><p>Texte</p></section>\n  </main>\n  <footer>Pied</footer>\n</body>\n</html>' },
+        { t: 'Texte et listes', d: "Les balises qui servent tous les jours", hl: 'html',
+          code: '<h1> a <h6>              titres, un seul h1 par page\n<p>                      paragraphe\n<strong> <em>            important, accentue\n<ul><li>                 liste a puces\n<ol><li>                 liste numerotee\n<br>                     saut de ligne\n<hr>                     trait de separation' },
+        { t: 'Liens, images et formulaires', d: "Relier des pages et recueillir une saisie", hl: 'html',
+          code: '<a href="https://exemple.fr">Visiter</a>\n<img src="photo.jpg" alt="Description utile">\n\n<form>\n  <label for="mail">Email</label>\n  <input type="email" id="mail" required>\n  <button type="submit">Envoyer</button>\n</form>' },
+        { t: 'CSS — Boîte et couleurs', d: "padding dedans, margin dehors", hl: 'html',
+          code: '<style>\n  .carte {\n    color: #E2762E;\n    background: #241917;\n    padding: 16px;      /* interieur */\n    margin: 12px;       /* exterieur */\n    border: 1px solid #444;\n    border-radius: 10px;\n  }\n</style>' },
+        { t: 'CSS — Sélecteurs', d: "Viser précisément ce qu'on veut styler", hl: 'html',
+          code: '.carte { }               /* une classe, reutilisable */\n#menu { }                /* un id, unique */\n.carte h2 { }            /* h2 A L\'INTERIEUR d\'une carte */\n.carte:hover { }         /* au survol */\nli:nth-child(odd) { }    /* une ligne sur deux */\nli:not(:last-child) { }  /* toutes sauf la derniere */' },
+        { t: 'CSS — Flexbox', d: "Aligner sur une seule ligne (ou colonne)", hl: 'html',
+          code: '<style>\n  .rangee {\n    display: flex;\n    gap: 12px;\n    justify-content: space-between;  /* axe horizontal */\n    align-items: center;             /* axe vertical */\n  }\n</style>' },
+        { t: 'CSS — Grid', d: "Organiser en lignes ET colonnes", hl: 'html',
+          code: '<style>\n  .grille {\n    display: grid;\n    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));\n    gap: 12px;\n  }\n</style>' },
+        { t: 'CSS — Variables et thèmes', d: "Une seule source de vérité pour les couleurs", hl: 'html',
+          code: '<style>\n  :root {\n    --accent: #E2762E;\n  }\n  .bouton {\n    background: var(--accent);\n  }\n  @media (prefers-color-scheme: dark) {\n    :root { --accent: #F6B23D; }\n  }\n</style>' },
+        { t: 'CSS — Animations et responsive', d: "Adoucir un changement, s'adapter à l'écran", hl: 'html',
+          code: '<style>\n  .bouton { transition: transform 0.2s ease; }\n  .bouton:hover { transform: translateY(-3px); }\n\n  @keyframes pulse { 50% { transform: scale(1.1); } }\n\n  @media (max-width: 600px) {\n    .carte { padding: 10px; }\n  }\n</style>' }
+      ] },
+      { titre: 'JavaScript', color: 'var(--ember)', fiches: [
+        { t: 'Variables et types', d: "const par défaut, let si ça change", hl: 'js',
+          code: 'const nom = "Nova";     // ne change jamais\nlet score = 0;          // peut changer\n\nconsole.log(typeof score, typeof nom);\nconsole.log(`${nom} : ${score} points`);\n\nscore = Number("5") + 2;   // conversion explicite' },
+        { t: 'Conditions et boucles', d: "=== toujours, jamais ==", hl: 'js',
+          code: 'if (score >= 10 && vivant) {\n  console.log("gagne");\n} else if (score > 0) {\n  console.log("continue");\n} else {\n  console.log("perdu");\n}\n\nfor (let i = 0; i < 5; i++) { console.log(i); }\nfor (const x of tableau) { console.log(x); }' },
+        { t: 'Fonctions et closures', d: "Une fonction qui se souvient de son environnement", hl: 'js',
+          code: 'const double = (x) => x * 2;\n\nfunction creerCompteur() {\n  let n = 0;\n  return () => { n++; return n; };\n}\n\nconst compteur = creerCompteur();\nconsole.log(compteur(), compteur());   // 1 2' },
+        { t: 'Tableaux', d: "Les méthodes qui remplacent la plupart des boucles", hl: 'js',
+          code: 'const t = [1, 2, 3];\nt.push(4); t.pop();\nt.map(n => n * 2);\nt.filter(n => n > 1);\nt.reduce((a, b) => a + b, 0);\nt.includes(2);\n[...new Set([1, 1, 2])];   // enleve les doublons' },
+        { t: 'Objets et classes', d: "Regrouper des données, ou créer un vrai type", hl: 'js',
+          code: 'const joueur = { nom: "Nova", vie: 100 };\njoueur.vie = 80;\nObject.keys(joueur);\n\nclass Personnage {\n  constructor(nom) { this.nom = nom; }\n  saluer() { return `Salut, ${this.nom}`; }\n}' },
+        { t: 'Le DOM', d: "Sélectionner et modifier la page", hl: 'js',
+          code: 'const el = document.querySelector("#id");\nconst tous = document.querySelectorAll(".classe");\n\nel.textContent = "Nouveau texte";\nel.style.background = "#E2762E";\nel.classList.add("actif");\nel.classList.toggle("ouvert");\n\nconst n = document.createElement("li");\nn.textContent = "Item";\nliste.appendChild(n);' },
+        { t: 'Événements', d: "Réagir à ce que fait la personne", hl: 'js',
+          code: 'bouton.addEventListener("click", (e) => {\n  e.preventDefault();\n  console.log(e.target);\n});\n\n// delegation : un seul ecouteur sur le parent\nliste.addEventListener("click", (e) => {\n  if (e.target.matches(".item")) {\n    console.log("clic sur un item");\n  }\n});' },
+        { t: 'Asynchrone et JSON', d: "Le temps qui passe, et sauvegarder des données", hl: 'js',
+          code: 'console.log("debut");\nsetTimeout(() => console.log("plus tard"), 1000);\nconsole.log("fin");            // s\'affiche avant "plus tard"\n\nconst texte = JSON.stringify({ score: 10 });\nconst objet = JSON.parse(texte);\n\nlocalStorage.setItem("cle", texte);' }
+      ] }
     ];
-    var g = el('div', 'grid2');
-    memo.forEach(function (m) {
-      var c = el('div', 'card');
-      c.innerHTML = '<h3>' + esc(m.t) + '</h3>';
-      var pre = el('pre', 'code');
-      pre.innerHTML = hl(m.code, m.lang);
-      c.appendChild(pre);
-      g.appendChild(c);
+
+    sections.forEach(function (sec, si) {
+      var head = el('h2', null, esc(sec.titre));
+      head.style.cssText = 'margin:' + (si === 0 ? '8px' : '52px') + ' 0 20px; color:' + sec.color + '; font-size:32px';
+      box.appendChild(head);
+      var g = el('div', 'grid2');
+      sec.fiches.forEach(function (m) {
+        var c = el('div', 'card');
+        c.innerHTML = '<h3>' + esc(m.t) + '</h3><p style="margin-bottom:12px">' + esc(m.d) + '</p>';
+        var pre = el('pre', 'code');
+        pre.innerHTML = hl(m.code, m.hl);
+        c.appendChild(pre);
+        g.appendChild(c);
+      });
+      box.appendChild(g);
     });
-    box.appendChild(g);
     show(wrap(box), 'memo');
   }
 

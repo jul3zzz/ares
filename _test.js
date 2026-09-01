@@ -136,6 +136,12 @@ out('import random\nprint(random.choice(["a"]) )', 'a', 'random.choice');
 /* ---------------- 8bis. Niveau ULTRA ---------------- */
 out('mots = ["ab", "c"]\nprint({m: len(m) for m in mots})', "{'ab': 2, 'c': 1}", 'comprehension de dictionnaire');
 out('print(sum(n * 2 for n in [1, 2, 3]))', '12', 'expression generatrice');
+out('def f():\n    print("main")\n\nif __name__ == "__main__":\n    f()', 'main', "idiome if __name__ == '__main__'");
+out('print(__name__)', '__main__', '__name__ vaut __main__');
+out('nombre: int = 5\nprint(nombre)', '5', 'annotation de type sur variable');
+out('def f(x: int) -> int:\n    resultat: int = x * 2\n    return resultat\nprint(f(3))', '6', 'annotations dans une fonction');
+out('x: int\nx = 7\nprint(x)', '7', 'annotation seule puis affectation separee');
+out('class P:\n    def __init__(self, n):\n        self.n = n\n    def __repr__(self):\n        return f"P({self.n})"\nprint([P(1), P(2)])', '[P(1), P(2)]', '__repr__ personnalise utilise dans une liste');
 out('print(all(l in "abc" for l in "ab"), any(x > 5 for x in [1, 9]))', 'True True', 'all/any avec generateur');
 out('class A:\n    def __init__(self, n):\n        self.n = n\nclass B(A):\n    def __init__(self, n, m):\n        super().__init__(n)\n        self.m = m\nb = B(1, 2)\nprint(b.n, b.m)', '1 2', 'super().__init__');
 out('class A:\n    def dis(self):\n        return "A"\nclass B(A):\n    def dis(self):\n        return super().dis() + "B"\nprint(B().dis())', 'AB', 'super() sur une methode');

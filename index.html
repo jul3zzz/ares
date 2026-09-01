@@ -31,7 +31,7 @@
 html{scroll-behavior:smooth}
 body{
   margin:0; background:var(--coal); color:var(--bone);
-  font-family:var(--body); font-size:16px; line-height:1.65;
+  font-family:var(--body); font-size:16px; line-height:1.7;
   -webkit-font-smoothing:antialiased;
   background-image:
     radial-gradient(1100px 620px at 78% -12%, rgba(226,118,46,.16), transparent 62%),
@@ -40,12 +40,12 @@ body{
 }
 h1,h2,h3,h4{font-family:var(--disp); font-weight:800; line-height:.98; text-wrap:balance; margin:0; letter-spacing:.005em}
 p{margin:0}
-a{color:var(--ember); text-décoration:none}
-a:hover{text-décoration:underline}
+a{color:var(--ember); text-decoration:none}
+a:hover{text-decoration:underline}
 button{font-family:inherit; color:inherit}
 code,pre,kbd{font-family:var(--mono)}
 :focus-visible{outline:2.5px solid var(--ember); outline-offset:2px; border-radius:4px}
-::sélection{background:rgba(226,118,46,.35)}
+::selection{background:rgba(226,118,46,.35)}
 .hidden{display:none !important}
 
 *::-webkit-scrollbar{width:10px;height:10px}
@@ -141,10 +141,10 @@ code,pre,kbd{font-family:var(--mono)}
 .path-card .prog .bar{height:6px}
 .path-card .prog span{font-size:11px; color:var(--ash2); font-weight:700; display:block; margin-top:7px; letter-spacing:.06em}
 
-.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
-.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
-.card{background:var(--pit); border:1px solid var(--edge); border-radius:var(--r); padding:22px}
-.card h3{font-size:26px; margin-bottom:8px}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:22px}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:22px}
+.card{background:var(--pit); border:1px solid var(--edge); border-radius:var(--r); padding:26px}
+.card h3{font-size:26px; margin-bottom:11px}
 .card p{color:var(--ash); font-size:14.5px}
 .icon-row{display:flex; align-items:center; gap:11px; margin-bottom:10px}
 .icon-badge{width:36px;height:36px;border-radius:9px; display:grid; place-items:center; background:var(--slab2); border:1px solid var(--edge2); font-size:17px}
@@ -158,14 +158,14 @@ code,pre,kbd{font-family:var(--mono)}
 .crumb button{background:none;border:0;cursor:pointer;color:var(--ash2);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:12px;padding:0}
 .crumb button:hover{color:var(--ember)}
 
-.day{margin-top:26px; border:1px solid var(--edge); border-radius:var(--r); background:var(--pit); overflow:hidden}
-.day-head{display:flex; align-items:center; gap:16px; padding:20px 24px; background:linear-gradient(90deg,var(--slab),transparent)}
+.day{margin-top:34px; border:1px solid var(--edge); border-radius:var(--r); background:var(--pit); overflow:hidden}
+.day-head{display:flex; align-items:center; gap:18px; padding:24px 28px; background:linear-gradient(90deg,var(--slab),transparent)}
 .day-num{font-family:var(--disp); font-size:52px; line-height:.8; color:var(--c); width:56px; flex:none; text-align:center}
 .day-head h3{font-size:29px}
 .day-head p{color:var(--ash2); font-size:13.5px; font-weight:600}
 .day-head .lock{margin-left:auto; font-size:12px; color:var(--ash2); font-weight:700}
 .lesson-list{display:flex; flex-direction:column; border-top:1px solid var(--edge)}
-.lrow{display:flex; align-items:center; gap:14px; padding:14px 24px; border-bottom:1px solid rgba(59,42,35,.5); background:none; border-left:0; border-right:0; border-top:0; cursor:pointer; text-align:left; transition:background .15s, padding-left .15s}
+.lrow{display:flex; align-items:center; gap:16px; padding:18px 28px; border-bottom:1px solid rgba(59,42,35,.5); background:none; border-left:0; border-right:0; border-top:0; cursor:pointer; text-align:left; transition:background .15s, padding-left .15s}
 .lrow:last-child{border-bottom:0}
 .lrow:hover{background:var(--slab); padding-left:29px}
 .lrow .st{width:26px;height:26px;border-radius:50%;border:2px solid var(--edge2); flex:none; display:grid; place-items:center; font-size:13px; color:var(--ash2); font-weight:800}
@@ -181,22 +181,22 @@ code,pre,kbd{font-family:var(--mono)}
 .lesson-top{display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap; margin-bottom:22px}
 .lesson-top h1{font-size:clamp(36px,5.5vw,58px)}
 .lesson-top .goal{color:var(--ash); font-size:15.5px; margin-top:8px; max-width:66ch}
-.lesson-grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:22px; align-items:start}
+.lesson-grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:30px; align-items:start}
 .lesson-grid.solo{grid-template-columns:minmax(0,1fr)}
-.pane{background:var(--pit); border:1px solid var(--edge); border-radius:var(--r); padding:24px 26px}
+.pane{background:var(--pit); border:1px solid var(--edge); border-radius:var(--r); padding:32px 34px}
 .pane.sticky{position:sticky; top:22px}
-.prose h2{font-size:27px; margin:26px 0 10px; color:var(--bone)}
+.prose h2{font-size:27px; margin:42px 0 16px; color:var(--bone)}
 .prose h2:first-child{margin-top:0}
-.prose h3{font-size:20px; margin:20px 0 8px; font-family:var(--body); font-weight:800}
-.prose p{margin:11px 0; color:#E4D7CC; font-size:15.5px}
-.prose ul,.prose ol{margin:11px 0; padding-left:22px; color:#E4D7CC; font-size:15.5px}
-.prose li{margin:6px 0}
+.prose h3{font-size:20px; margin:30px 0 12px; font-family:var(--body); font-weight:800}
+.prose p{margin:18px 0; color:#E4D7CC; font-size:15.5px; line-height:1.75}
+.prose ul,.prose ol{margin:18px 0; padding-left:22px; color:#E4D7CC; font-size:15.5px; line-height:1.75}
+.prose li{margin:9px 0}
 .prose strong{color:var(--bone); font-weight:800}
 .prose em{color:var(--ember); font-style:normal; font-weight:700}
 .prose code{background:#0E0806; border:1px solid var(--edge); padding:1.5px 6px; border-radius:5px; font-size:.9em; color:var(--ember)}
-.callout{border-left:3px solid var(--cl,var(--bronze)); background:var(--slab); border-radius:0 var(--r-s) var(--r-s) 0; padding:14px 18px; margin:18px 0}
-.callout .h{font-family:var(--disp); font-size:19px; letter-spacing:.04em; color:var(--cl,var(--ember)); margin-bottom:2px}
-.callout p{margin:4px 0; font-size:14.5px; color:#E4D7CC}
+.callout{border-left:3px solid var(--cl,var(--bronze)); background:var(--slab); border-radius:0 var(--r-s) var(--r-s) 0; padding:18px 22px; margin:28px 0}
+.callout .h{font-family:var(--disp); font-size:19px; letter-spacing:.04em; color:var(--cl,var(--ember)); margin-bottom:6px}
+.callout p{margin:6px 0; font-size:14.5px; color:#E4D7CC; line-height:1.65}
 .callout.tip{--cl:var(--serpent)} .callout.warn{--cl:var(--blood)} .callout.key{--cl:var(--ember)}
 .analogy{background:linear-gradient(120deg,rgba(79,191,180,.09),transparent); border:1px dashed #2F544F; border-radius:var(--r-s); padding:14px 18px; margin:18px 0; font-size:14.5px; color:#D9E9E7}
 .analogy b{color:var(--serpent)}
@@ -234,10 +234,10 @@ pre.code .nb{color:#6FC6D6} pre.code .nu{color:#F6B23D} pre.code .tg{color:#F08B
 
 .preview{background:#fff; border-radius:var(--r-s); border:1px solid var(--edge2); padding:16px; color:#111; min-height:150px; overflow:auto; max-height:460px}
 
-.q{border:1px solid var(--edge); border-radius:var(--r); padding:20px 22px; margin-top:16px; background:var(--pit)}
+.q{border:1px solid var(--edge); border-radius:var(--r); padding:24px 26px; margin-top:22px; background:var(--pit)}
 .q .num{font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ash2); font-weight:800}
-.q h4{font-size:19px; margin:6px 0 14px; font-family:var(--body); font-weight:800; line-height:1.35}
-.opts{display:flex; flex-direction:column; gap:9px}
+.q h4{font-size:19px; margin:8px 0 18px; font-family:var(--body); font-weight:800; line-height:1.4}
+.opts{display:flex; flex-direction:column; gap:11px}
 .opt{display:flex; align-items:center; gap:12px; padding:12px 15px; border:1px solid var(--edge2); border-radius:var(--r-s); background:var(--slab); cursor:pointer; text-align:left; font-size:14.5px; font-weight:600; transition:transform .13s, border-color .13s, background .13s; width:100%}
 .opt:hover:not(:disabled){transform:translateX(4px); border-color:var(--ember)}
 .opt .k{width:24px;height:24px;border-radius:6px; background:#0D0806; border:1px solid var(--edge2); display:grid; place-items:center; font-family:var(--mono); font-size:12px; flex:none; color:var(--ash)}
@@ -4994,7 +4994,12 @@ var PyRun = (function () {
         st = this.importStmt();
       } else {
         var e = this.exprList();
-        if (this.at('OP') && /^(\+=|-=|\*=|\/=|%=|\*\*=|\/\/=)$/.test(this.peek().v)) {
+        if (this.atOp(':') && (e.type === 'Name' || e.type === 'Attr' || e.type === 'Index')) {
+          // annotation de type sur une variable : x: int = 5, ou juste x: int
+          this.next(); this.expr();          // l'annotation elle-meme n'a aucun effet a l'execution
+          if (this.atOp('=')) { this.next(); st = { type: 'Assign', targets: [e], value: this.exprList(), line: line }; }
+          else st = { type: 'Pass', line: line };
+        } else if (this.at('OP') && /^(\+=|-=|\*=|\/=|%=|\*\*=|\/\/=)$/.test(this.peek().v)) {
           var op = this.next().v.slice(0, -1);
           st = { type: 'AugAssign', target: e, op: op, value: this.exprList(), line: line };
         } else if (this.atOp('=')) {
@@ -5332,6 +5337,10 @@ var PyRun = (function () {
   }
   function repr(v) {
     if (typeof v === 'string') return v.indexOf("'") >= 0 && v.indexOf('"') < 0 ? '"' + v + '"' : "'" + v.replace(/'/g, "\\'") + "'";
+    if (v instanceof PyObj && !v.cls.isExc) {
+      var f = findMethod(v.cls, '__repr__');
+      if (f) return str(callFunction(new PyBound(v, f, findOwner(v.cls, '__repr__')), [], {}, 0));
+    }
     return str(v);
   }
   function typeName(v) {
@@ -5978,6 +5987,11 @@ var PyRun = (function () {
   /* ---------- builtins ---------- */
   function B(name, fn) { fn.pyname = name; return fn; }
   var BUILTINS = {
+    // Chaque script execute par la forge est le point d'entree, exactement
+    // comme quand on lance un fichier .py directement : __name__ vaut donc
+    // toujours "__main__". Ceci autorise l'idiome tres repandu
+    // « if __name__ == "__main__": » sans provoquer de NameError.
+    __name__: '__main__',
     print: B('print', function (a, k, line) {
       var sep = k.sep !== undefined ? k.sep : ' ', end = k.end !== undefined ? k.end : '\n';
       write(a.map(str).join(sep) + end);
@@ -7647,31 +7661,83 @@ var Runner = (function () {
   function viewMemo() {
     var box = el('div');
     box.innerHTML = '<div class="crumb"><button data-go="home">Accueil</button> · Aide-mémoire</div>' +
-      '<div class="sec-head"><div><h2>Aide-mémoire</h2><p>Tout ce qu’il faut se rappeler, sur une page. ' +
-      'Personne n’apprend une syntaxe par coeur : on la retrouve, jusqu’a ce qu’elle rentre toute seule.</p></div></div>';
+      '<div class="sec-head"><div><h2>Aide-mémoire</h2><p>Vingt-cinq fiches, une par notion. Personne n’apprend ' +
+      'une syntaxe par cœur : on la retrouve ici, jusqu’à ce qu’elle rentre toute seule.</p></div></div>';
 
-    var memo = [
-      { t: 'Python — les bases', lang: 'python', code: 'x = 5                  # nombre entier\ny = 3.5                # nombre a virgule\nnom = "Nova"           # texte\nok = True              # booleen\n\nprint(f"{nom} a {x} vies")\n\nage = int(input("Age ? "))    # saisie convertie' },
-      { t: 'Python — conditions et boucles', lang: 'python', code: 'if note >= 16:\n    print("Très bien")\nelif note >= 10:\n    print("Admis")\nelse:\n    print("A revoir")\n\nfor i in range(1, 11):     # 1 a 10\n    print(i)\n\nwhile vies > 0:\n    vies -= 1' },
-      { t: 'Python — listes et dictionnaires', lang: 'python', code: 'l = [1, 2, 3]\nl.append(4)      # ajouter\nl[0]             # premier\nl[-1]            # dernier\nl[1:3]           # tranche\nlen(l), sum(l), max(l), sorted(l)\n\nd = {"nom": "Nova", "vie": 100}\nd["vie"] = 90\nd.get("mana", 0)\nfor clé, valeur in d.items():\n    print(clé, valeur)' },
-      { t: 'Python — fonctions et classes', lang: 'python', code: 'def moyenne(notes):\n    """Renvoie la moyenne."""\n    return sum(notes) / len(notes)\n\nclass Joueur:\n    def __init__(self, nom, vie=100):\n        self.nom = nom\n        self.vie = vie\n\n    def subir(self, degats):\n        self.vie -= degats\n\ntry:\n    n = int("abc")\nexcept ValueError:\n    print("pas un nombre")' },
-      { t: 'HTML — la structure', lang: 'html', code: '<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>Mon site</title>\n</head>\n<body>\n  <header><h1>Titre</h1></header>\n  <nav>Menu</nav>\n  <main>\n    <section><h2>Partie</h2><p>Texte</p></section>\n  </main>\n  <footer>Pied</footer>\n</body>\n</html>' },
-      { t: 'HTML — les balises courantes', lang: 'html', code: '<h1> a <h6>          titres\n<p>                  paragraphe\n<strong> <em>        important, accentue\n<ul> <ol> <li>       listes\n<a href="...">       lien\n<img src="..." alt="...">\n<div> <span>         conteneurs neutres\n<form> <label for="x"> <input id="x"> <button>' },
-      { t: 'CSS — les essentiels', lang: 'html', code: '<style>\n  :root { --accent: #E2762E; }\n\n  .carte {\n    color: var(--accent);\n    background: #241917;\n    padding: 16px;          /* interieur */\n    margin: 12px;           /* exterieur */\n    border: 1px solid #444;\n    border-radius: 10px;\n    width: 100%;\n    max-width: 500px;\n  }\n\n  .rangee { display: flex; gap: 12px; justify-content: space-between; align-items: center; }\n  .grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }\n\n  @media (max-width: 600px) { .carte { padding: 10px; } }\n</style>' },
-      { t: 'JavaScript — les bases', lang: 'js', code: 'const nom = "Nova";     // ne change pas\nlet score = 0;          // change\n\nconsole.log(`${nom} : ${score} points`);\n\nif (score >= 10 && vivant) { ... } else { ... }\n\nfor (let i = 0; i < 5; i++) { ... }\nfor (const x of tableau) { ... }\n\nconst double = (x) => x * 2;' },
-      { t: 'JavaScript — tableaux et objets', lang: 'js', code: 'const t = [1, 2, 3];\nt.push(4); t.pop();\nt.length; t.includes(2);\nt.map(n => n * 2);\nt.filter(n => n > 1);\nt.reduce((a, b) => a + b, 0);\n\nconst o = { nom: "Nova", vie: 100 };\no.vie = 80;\nObject.keys(o);\n\nJSON.stringify(o);  JSON.parse(texte);' },
-      { t: 'JavaScript — le DOM', lang: 'js', code: 'const el = document.querySelector("#id");\nconst tous = document.querySelectorAll(".classe");\n\nel.textContent = "Nouveau texte";\nel.style.background = "#E2762E";\nel.classList.add("actif");\nel.classList.toggle("ouvert");\n\nel.addEventListener("click", (e) => {\n  e.preventDefault();\n  console.log(e.target);\n});\n\nconst n = document.createElement("li");\nn.textContent = "Item";\nliste.appendChild(n);' }
+    var sections = [
+      { titre: 'Python', color: 'var(--serpent)', fiches: [
+        { t: 'Variables et types', d: "Les quatre types de base, et comment les mélanger", hl: 'python',
+          code: 'nom = "Nova"           # texte (str)\nage = 14               # entier (int)\ntaille = 1.62          # decimal (float)\nmajeur = False         # booleen (bool)\n\nprint(f"{nom} a {age} ans")\nprint(type(age), type(taille))\n\nage = int(input("Age : "))   # une saisie est toujours du texte' },
+        { t: 'Texte et f-strings', d: "Assembler, transformer et découper des chaînes", hl: 'python',
+          code: 'mot = "Python"\nprint(mot.upper(), mot.lower())\nprint(mot[0], mot[-1], mot[1:4])\nprint(len(mot))\n\nprix = 12.5\nprint(f"Total : {prix:.2f} euros")\nprint(f"{mot:<10}|")          # aligne a gauche sur 10\n\nphrase = "un jeu video"\nprint(phrase.split())         # -> liste de mots\nprint("-".join(["a", "b"]))   # -> "a-b"' },
+        { t: 'Conditions et boucles', d: "Choisir un chemin, répéter une action", hl: 'python',
+          code: 'if note >= 16:\n    print("Tres bien")\nelif note >= 10:\n    print("Admis")\nelse:\n    print("A revoir")\n\nfor i in range(1, 11):     # 1 a 10\n    print(i)\n\nwhile vies > 0:\n    vies -= 1' },
+        { t: 'Listes et tuples', d: "Ranger plusieurs valeurs, dans l'ordre", hl: 'python',
+          code: 'l = [3, 1, 2]\nl.append(4)          # ajouter a la fin\nl.sort()             # trier sur place\nl[0], l[-1]          # premier, dernier\nl[1:3]               # tranche\nlen(l), sum(l), max(l)\n\nt = (1, 2)           # tuple : ne change plus jamais\na, b = t             # depaquetage\n\ncarres = [n * n for n in range(5)]   # comprehension' },
+        { t: 'Dictionnaires', d: "Associer une clé à une valeur", hl: 'python',
+          code: 'joueur = {"nom": "Nova", "vie": 100}\njoueur["vie"] = 90        # modifier\njoueur.get("mana", 0)     # 0 si absent, sans planter\n"nom" in joueur            # True\n\nfor cle, valeur in joueur.items():\n    print(cle, valeur)\n\nnotes = {"maths": 15, "svt": 12}\nmoyenne = sum(notes.values()) / len(notes)' },
+        { t: 'Fonctions', d: "Écrire une fois, réutiliser partout", hl: 'python',
+          code: 'def moyenne(notes):\n    """Renvoie la moyenne d\'une liste."""\n    return sum(notes) / len(notes)\n\ndef saluer(nom, message="Bonjour"):\n    return f"{message} {nom} !"\n\nprint(saluer("Lea"))\nprint(saluer("Sam", message="Salut"))\n\ncarre = lambda x: x * x' },
+        { t: 'Classes et héritage', d: "Modéliser tes propres objets", hl: 'python',
+          code: 'class Personnage:\n    def __init__(self, nom, vie=100):\n        self.nom = nom\n        self.vie = vie\n\n    def subir(self, degats):\n        self.vie -= degats\n\n    def __str__(self):\n        return f"{self.nom} ({self.vie} PV)"\n\n\nclass Magicien(Personnage):\n    def __init__(self, nom, mana):\n        super().__init__(nom)\n        self.mana = mana' },
+        { t: 'Exceptions et modules', d: "Ne jamais planter, et emprunter des outils tout faits", hl: 'python',
+          code: 'try:\n    n = int(input("Nombre : "))\nexcept ValueError:\n    print("Ce n\'est pas un nombre")\nfinally:\n    print("Termine")\n\nimport math\nimport random\n\nprint(math.sqrt(16), math.pi)\nprint(random.randint(1, 6))' }
+      ] },
+      { titre: 'HTML & CSS', color: 'var(--bronze)', fiches: [
+        { t: 'Structure de page', d: "Le squelette présent dans chaque page HTML", hl: 'html',
+          code: '<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>Mon site</title>\n</head>\n<body>\n  <header><h1>Titre</h1></header>\n  <nav>Menu</nav>\n  <main>\n    <section><h2>Partie</h2><p>Texte</p></section>\n  </main>\n  <footer>Pied</footer>\n</body>\n</html>' },
+        { t: 'Texte et listes', d: "Les balises qui servent tous les jours", hl: 'html',
+          code: '<h1> a <h6>              titres, un seul h1 par page\n<p>                      paragraphe\n<strong> <em>            important, accentue\n<ul><li>                 liste a puces\n<ol><li>                 liste numerotee\n<br>                     saut de ligne\n<hr>                     trait de separation' },
+        { t: 'Liens, images et formulaires', d: "Relier des pages et recueillir une saisie", hl: 'html',
+          code: '<a href="https://exemple.fr">Visiter</a>\n<img src="photo.jpg" alt="Description utile">\n\n<form>\n  <label for="mail">Email</label>\n  <input type="email" id="mail" required>\n  <button type="submit">Envoyer</button>\n</form>' },
+        { t: 'CSS — Boîte et couleurs', d: "padding dedans, margin dehors", hl: 'html',
+          code: '<style>\n  .carte {\n    color: #E2762E;\n    background: #241917;\n    padding: 16px;      /* interieur */\n    margin: 12px;       /* exterieur */\n    border: 1px solid #444;\n    border-radius: 10px;\n  }\n</style>' },
+        { t: 'CSS — Sélecteurs', d: "Viser précisément ce qu'on veut styler", hl: 'html',
+          code: '.carte { }               /* une classe, reutilisable */\n#menu { }                /* un id, unique */\n.carte h2 { }            /* h2 A L\'INTERIEUR d\'une carte */\n.carte:hover { }         /* au survol */\nli:nth-child(odd) { }    /* une ligne sur deux */\nli:not(:last-child) { }  /* toutes sauf la derniere */' },
+        { t: 'CSS — Flexbox', d: "Aligner sur une seule ligne (ou colonne)", hl: 'html',
+          code: '<style>\n  .rangee {\n    display: flex;\n    gap: 12px;\n    justify-content: space-between;  /* axe horizontal */\n    align-items: center;             /* axe vertical */\n  }\n</style>' },
+        { t: 'CSS — Grid', d: "Organiser en lignes ET colonnes", hl: 'html',
+          code: '<style>\n  .grille {\n    display: grid;\n    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));\n    gap: 12px;\n  }\n</style>' },
+        { t: 'CSS — Variables et thèmes', d: "Une seule source de vérité pour les couleurs", hl: 'html',
+          code: '<style>\n  :root {\n    --accent: #E2762E;\n  }\n  .bouton {\n    background: var(--accent);\n  }\n  @media (prefers-color-scheme: dark) {\n    :root { --accent: #F6B23D; }\n  }\n</style>' },
+        { t: 'CSS — Animations et responsive', d: "Adoucir un changement, s'adapter à l'écran", hl: 'html',
+          code: '<style>\n  .bouton { transition: transform 0.2s ease; }\n  .bouton:hover { transform: translateY(-3px); }\n\n  @keyframes pulse { 50% { transform: scale(1.1); } }\n\n  @media (max-width: 600px) {\n    .carte { padding: 10px; }\n  }\n</style>' }
+      ] },
+      { titre: 'JavaScript', color: 'var(--ember)', fiches: [
+        { t: 'Variables et types', d: "const par défaut, let si ça change", hl: 'js',
+          code: 'const nom = "Nova";     // ne change jamais\nlet score = 0;          // peut changer\n\nconsole.log(typeof score, typeof nom);\nconsole.log(`${nom} : ${score} points`);\n\nscore = Number("5") + 2;   // conversion explicite' },
+        { t: 'Conditions et boucles', d: "=== toujours, jamais ==", hl: 'js',
+          code: 'if (score >= 10 && vivant) {\n  console.log("gagne");\n} else if (score > 0) {\n  console.log("continue");\n} else {\n  console.log("perdu");\n}\n\nfor (let i = 0; i < 5; i++) { console.log(i); }\nfor (const x of tableau) { console.log(x); }' },
+        { t: 'Fonctions et closures', d: "Une fonction qui se souvient de son environnement", hl: 'js',
+          code: 'const double = (x) => x * 2;\n\nfunction creerCompteur() {\n  let n = 0;\n  return () => { n++; return n; };\n}\n\nconst compteur = creerCompteur();\nconsole.log(compteur(), compteur());   // 1 2' },
+        { t: 'Tableaux', d: "Les méthodes qui remplacent la plupart des boucles", hl: 'js',
+          code: 'const t = [1, 2, 3];\nt.push(4); t.pop();\nt.map(n => n * 2);\nt.filter(n => n > 1);\nt.reduce((a, b) => a + b, 0);\nt.includes(2);\n[...new Set([1, 1, 2])];   // enleve les doublons' },
+        { t: 'Objets et classes', d: "Regrouper des données, ou créer un vrai type", hl: 'js',
+          code: 'const joueur = { nom: "Nova", vie: 100 };\njoueur.vie = 80;\nObject.keys(joueur);\n\nclass Personnage {\n  constructor(nom) { this.nom = nom; }\n  saluer() { return `Salut, ${this.nom}`; }\n}' },
+        { t: 'Le DOM', d: "Sélectionner et modifier la page", hl: 'js',
+          code: 'const el = document.querySelector("#id");\nconst tous = document.querySelectorAll(".classe");\n\nel.textContent = "Nouveau texte";\nel.style.background = "#E2762E";\nel.classList.add("actif");\nel.classList.toggle("ouvert");\n\nconst n = document.createElement("li");\nn.textContent = "Item";\nliste.appendChild(n);' },
+        { t: 'Événements', d: "Réagir à ce que fait la personne", hl: 'js',
+          code: 'bouton.addEventListener("click", (e) => {\n  e.preventDefault();\n  console.log(e.target);\n});\n\n// delegation : un seul ecouteur sur le parent\nliste.addEventListener("click", (e) => {\n  if (e.target.matches(".item")) {\n    console.log("clic sur un item");\n  }\n});' },
+        { t: 'Asynchrone et JSON', d: "Le temps qui passe, et sauvegarder des données", hl: 'js',
+          code: 'console.log("debut");\nsetTimeout(() => console.log("plus tard"), 1000);\nconsole.log("fin");            // s\'affiche avant "plus tard"\n\nconst texte = JSON.stringify({ score: 10 });\nconst objet = JSON.parse(texte);\n\nlocalStorage.setItem("cle", texte);' }
+      ] }
     ];
-    var g = el('div', 'grid2');
-    memo.forEach(function (m) {
-      var c = el('div', 'card');
-      c.innerHTML = '<h3>' + esc(m.t) + '</h3>';
-      var pre = el('pre', 'code');
-      pre.innerHTML = hl(m.code, m.lang);
-      c.appendChild(pre);
-      g.appendChild(c);
+
+    sections.forEach(function (sec, si) {
+      var head = el('h2', null, esc(sec.titre));
+      head.style.cssText = 'margin:' + (si === 0 ? '8px' : '52px') + ' 0 20px; color:' + sec.color + '; font-size:32px';
+      box.appendChild(head);
+      var g = el('div', 'grid2');
+      sec.fiches.forEach(function (m) {
+        var c = el('div', 'card');
+        c.innerHTML = '<h3>' + esc(m.t) + '</h3><p style="margin-bottom:12px">' + esc(m.d) + '</p>';
+        var pre = el('pre', 'code');
+        pre.innerHTML = hl(m.code, m.hl);
+        c.appendChild(pre);
+        g.appendChild(c);
+      });
+      box.appendChild(g);
     });
-    box.appendChild(g);
     show(wrap(box), 'memo');
   }
 
