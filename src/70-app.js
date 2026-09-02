@@ -566,7 +566,7 @@
         var row = el('button', 'lrow' + (P.done[l.id] ? ' done' : ''));
         row.innerHTML =
           '<span class="st">' + (P.done[l.id] ? '✔' : '') + '</span>' +
-          '<span><span class="t">' + esc(l.title) + '</span><br><span class="d">' + esc(l.goal) + '</span></span>' +
+          '<span class="info"><span class="t">' + esc(l.title) + '</span><br><span class="d">' + esc(l.goal) + '</span></span>' +
           '<span class="kind" data-k="' + l.kind + '">' + l.kind + ' · ' + l.xp + ' xp</span>';
         row.addEventListener('click', function () {
           if (!unlocked(p)) { toast('🔒 Verrouille', 'Entre une clé ULTRA pour ouvrir ce parcours.'); return; }
@@ -610,20 +610,53 @@
     box.appendChild(top);
     top.querySelector('[data-path]').addEventListener('click', function () { viewPath(p); });
 
-    var grid = el('div', 'lesson-grid');
-    var left = el('div', 'pane prose');
-    var right = el('div');
+    // Etape 1 : la leçon. Etape 2 : la pratique (exercices, jeu, quiz).
+    // Une seule des deux est visible a la fois, pour ne pas tout melanger.
+    var estJeu = l.kind === 'jeu';
+    var libellePratique = estJeu ? 'Jeu' : 'Exercices';
 
-    (l.blocks || []).forEach(function (b) { renderBlock(left, b, p, l); });
-    if (!l.blocks || !l.blocks.length) left.innerHTML = '<p>Passe directement à la pratique →</p>';
+    var lecon = el('div', 'pane prose');
+    (l.blocks || []).forEach(function (b) { renderBlock(lecon, b, p, l); });
+    if (!l.blocks || !l.blocks.length) lecon.innerHTML = '<p>Passe directement à la pratique →</p>';
 
-    if (l.game) right.appendChild(renderGame(l));
-    (l.ex || []).forEach(function (ex, i) { right.appendChild(renderExercise(l, p, ex, i)); });
-    if (l.quiz && l.quiz.length) right.appendChild(renderQuiz(l));
-    right.appendChild(renderFinish(l, p, d));
+    var suite = el('button', 'btn primary', (estJeu ? 'Passer au jeu' : 'Passer aux exercices') + ' →');
+    var suiteRow = el('div', 'run-row');
+    suiteRow.style.cssText = 'margin-top:26px';
+    suiteRow.appendChild(suite);
+    var leconEtape = el('div', 'step-stage');
+    leconEtape.appendChild(lecon);
+    leconEtape.appendChild(suiteRow);
 
-    grid.appendChild(left); grid.appendChild(right);
-    box.appendChild(grid);
+    var pratique = el('div', 'step-stage');
+    pratique.hidden = true;
+    var retour = el('button', 'btn ghost sm', '← Revoir la leçon');
+    retour.style.cssText = 'margin-bottom:20px';
+    pratique.appendChild(retour);
+    if (l.game) pratique.appendChild(renderGame(l));
+    (l.ex || []).forEach(function (ex, i) { pratique.appendChild(renderExercise(l, p, ex, i)); });
+    if (l.quiz && l.quiz.length) pratique.appendChild(renderQuiz(l));
+    pratique.appendChild(renderFinish(l, p, d));
+
+    var stepper = el('div', 'stepper');
+    var tabLecon = el('button', 'step-tab on', '<span>1</span>Leçon');
+    var tabPratique = el('button', 'step-tab', '<span>2</span>' + esc(libellePratique));
+    stepper.appendChild(tabLecon); stepper.appendChild(tabPratique);
+
+    function montrer(etape) {
+      leconEtape.hidden = etape !== 'lecon';
+      pratique.hidden = etape !== 'pratique';
+      tabLecon.classList.toggle('on', etape === 'lecon');
+      tabPratique.classList.toggle('on', etape === 'pratique');
+      window.scrollTo(0, 0);
+    }
+    suite.addEventListener('click', function () { montrer('pratique'); });
+    retour.addEventListener('click', function () { montrer('lecon'); });
+    tabLecon.addEventListener('click', function () { montrer('lecon'); });
+    tabPratique.addEventListener('click', function () { montrer('pratique'); });
+
+    box.appendChild(stepper);
+    box.appendChild(leconEtape);
+    box.appendChild(pratique);
     show(wrap(box), p.id);
   }
 

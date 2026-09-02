@@ -161,6 +161,7 @@ code,pre,kbd{font-family:var(--mono)}
 .lrow:hover{background:var(--slab); padding-left:29px}
 .lrow .st{width:26px;height:26px;border-radius:50%;border:2px solid var(--edge2); flex:none; display:grid; place-items:center; font-size:13px; color:var(--ash2); font-weight:800}
 .lrow.done .st{background:var(--vine); border-color:var(--vine); color:#0C2410}
+.lrow .info{flex:1 1 auto; min-width:0}
 .lrow .t{font-weight:700; font-size:15.5px}
 .lrow .d{font-size:13px; color:var(--ash2)}
 .lrow .kind{margin-left:auto; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:800; color:var(--ash2); border:1px solid var(--edge2); padding:3px 9px; border-radius:99px; white-space:nowrap}
@@ -172,6 +173,23 @@ code,pre,kbd{font-family:var(--mono)}
 .lesson-top{display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap; margin-bottom:22px}
 .lesson-top h1{font-size:clamp(36px,5.5vw,58px)}
 .lesson-top .goal{color:var(--ash); font-size:15.5px; margin-top:8px; max-width:66ch}
+
+/* etapes leçon -> exercices : une seule chose a la fois a l'ecran */
+.stepper{display:flex; gap:22px; border-bottom:1px solid var(--edge); margin-bottom:28px}
+.step-tab{
+  display:flex; align-items:center; gap:9px; padding:11px 2px 15px; margin-bottom:-1px;
+  background:none; border:0; border-bottom:2px solid transparent; cursor:pointer;
+  font-weight:800; font-size:15px; color:var(--ash2); transition:color .15s, border-color .15s;
+}
+.step-tab span{
+  width:23px; height:23px; border-radius:50%; flex:none; display:grid; place-items:center;
+  background:var(--slab); border:1px solid var(--edge2); font-family:var(--mono); font-size:12px; color:var(--ash2);
+  transition:background .15s, border-color .15s, color .15s;
+}
+.step-tab:hover:not(.on){color:var(--bone)}
+.step-tab.on{color:var(--bone); border-color:var(--ember)}
+.step-tab.on span{background:var(--ember); border-color:var(--ember); color:#20100A}
+.step-stage[hidden]{display:none}
 .lesson-grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:30px; align-items:start}
 .lesson-grid.solo{grid-template-columns:minmax(0,1fr)}
 .pane{background:var(--pit); border:1px solid var(--edge); border-radius:var(--r); padding:32px 34px}
@@ -310,6 +328,36 @@ pre.code .nb{color:#6FC6D6} pre.code .nu{color:#F6B23D} pre.code .tg{color:#F08B
   .view{padding-top:70px}
   .grid2,.ticks{grid-template-columns:1fr}
   .hero{padding-top:20px}
+  .hero h1{font-size:clamp(64px,22vw,120px)}
+  .stats{grid-template-columns:1fr 1fr}
+  .cta-row{flex-direction:column; align-items:stretch}
+  .cta-row .btn{justify-content:center}
+
+  /* en-tete de jour/module : le numero, le titre et le compteur passent
+     sur des lignes separees plutot que de s'ecraser sur une seule ligne */
+  .day-head{flex-wrap:wrap; row-gap:8px; padding:18px 20px}
+  .day-num{font-size:34px; width:auto}
+  .day-head .lock{margin-left:60px; flex:0 0 auto}
+
+  /* ligne de lecon : le badge de type passe sous le titre au lieu de
+     comprimer le texte contre lui */
+  .lrow{flex-wrap:wrap; row-gap:6px; padding:16px 20px}
+  .lrow .kind{margin-left:42px; order:3}
+
+  /* editeur : garde une hauteur confortable au tactile sans etre gigantesque */
+  .editor textarea{min-height:170px; font-size:13px}
+  .run-row .btn{flex:1 1 auto; justify-content:center}
+
+  /* etapes lecon / exercices : les libelles se resserrent */
+  .step-tab{font-size:13px; padding:9px 2px 12px}
+  .step-tab span{width:20px; height:20px; font-size:11px}
+}
+@media(max-width:480px){
+  .hero .sub{font-size:clamp(19px,6vw,26px)}
+  .stats{grid-template-columns:1fr}
+  .day-num{display:none}
+  .day-head .lock{margin-left:0}
+  .lrow .kind{margin-left:0}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.001ms !important; transition-duration:.001ms !important}
