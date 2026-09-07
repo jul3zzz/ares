@@ -195,6 +195,50 @@ console.log('\n=== INTERPRETEUR PYTHON ===');
 console.log('  ' + pass + ' verifications OK, ' + fail + ' echec(s)');
 if (bad.length) { console.log('\nEchecs :'); bad.forEach(b => console.log('  X ' + b)); }
 
+/* ================= INTERPRETEUR ASSEMBLEUR ================= */
+let passAsm = 0, failAsm = 0;
+const badAsm = [];
+function okAsm(cond, label, detail) {
+  if (cond) passAsm++;
+  else { failAsm++; badAsm.push(label + (detail ? '\n     ' + detail : '')); }
+}
+function asm(src) { return ctx.AsmRun.run(src); }
+function outAsm(src, expected, label) {
+  const r = asm(src);
+  if (r.error) return okAsm(false, label, 'ERREUR ' + r.errorType + ' ligne ' + r.errorLine + ' : ' + r.error);
+  const got = r.out.replace(/\n$/, '');
+  okAsm(got === expected, label, 'attendu ' + JSON.stringify(expected) + '\n     obtenu ' + JSON.stringify(got));
+}
+function erreurAsm(src, label) {
+  const r = asm(src);
+  okAsm(!!r.error, label, r.error ? '' : 'aucune erreur levee');
+}
+
+outAsm('mov rax, 5\nprint rax', '5', 'mov + print');
+outAsm('mov rax, 5\nadd rax, 3\nprint rax', '8', 'add');
+outAsm('mov rax, 3\nsub rax, 5\nprint rax', '-2', 'sub negatif');
+outAsm('mov eax, 10\nadd rax, 5\nprint eax', '15', 'alias 32 bits <-> 64 bits');
+outAsm('mov rcx, 0\nboucle:\ncmp rcx, 5\njge fin\nprint rcx\ninc rcx\njmp boucle\nfin:\nprint "termine"',
+  '0\n1\n2\n3\n4\ntermine', 'boucle avec cmp/jge/jmp');
+outAsm('mov rax, 1\nmov rbx, 2\npush rax\npush rbx\npop rax\npop rbx\nprint rax\nprint rbx', '2\n1', 'push/pop (LIFO)');
+outAsm('mov rdi, 4\ncall carre\nprint rax\njmp fin\ncarre:\nmov rax, rdi\nmul rax\nret\nfin:', '16', 'call/ret');
+outAsm('tableau: dq 10, 20, 30\nmov rbx, 1\nmov rax, [tableau + rbx]\nprint rax', '20', 'lecture memoire indexee');
+outAsm('tableau: dq 10, 20, 30\nmov rax, [tableau + 2]\nprint rax', '30', 'lecture memoire avec decalage litteral');
+outAsm('tableau: dq 0, 0, 0\nmov rbx, 2\nmov rax, 99\nmov [tableau + rbx], rax\nprint [tableau + rbx]', '99', 'ecriture memoire indexee');
+outAsm('mov rax, 17\nmov rbx, 5\ndiv rbx\nprint rax\nprint rdx', '3\n2', 'div : quotient et reste');
+outAsm('mov rax, 6\nand rax, 3\nprint rax', '2', 'and');
+outAsm('mov rdi, 5\ncall fact\nprint rax\njmp fin\nfact:\ncmp rdi, 1\njg suite\nmov rax, 1\nret\nsuite:\npush rdi\ndec rdi\ncall fact\npop rdi\nmul rdi\nret\nfin:',
+  '120', 'recursivite (factorielle)');
+erreurAsm('mov rax, 5\nmov rbx, 0\ndiv rbx', 'division par zero detectee');
+erreurAsm('boucle:\njmp boucle', 'boucle infinie coupee par la limite de pas');
+erreurAsm('jmp nulle_part', 'etiquette inconnue detectee');
+erreurAsm('pop rax', 'pop sur pile vide detecte');
+erreurAsm('ret', 'ret sans call detecte');
+
+console.log('\n=== INTERPRETEUR ASSEMBLEUR ===');
+console.log('  ' + passAsm + ' verifications OK, ' + failAsm + ' echec(s)');
+if (badAsm.length) { console.log('\nEchecs :'); badAsm.forEach(b => console.log('  X ' + b)); }
+
 /* ================= CONTENU PEDAGOGIQUE =================
    Regle d'or : chaque solution de reference doit passer ses propres tests,
    chaque bloc de code marque "run" doit s'executer sans erreur,
@@ -244,6 +288,12 @@ eachLesson((lesson, path) => {
       const r = ctx.Runner.runJS(b.v, {});
       if (b.err) { cok(!!r.error, 'bloc-demo JS qui doit echouer : ' + lesson.id + ' #' + i); return; }
       cok(!r.error, 'bloc JS executable ' + lesson.id + ' #' + i, r.error || '');
+    }
+    if (b.t === 'code' && b.run && path.lang === 'asm') {
+      const r = asm(b.v);
+      if (b.err) { cok(!!r.error, 'bloc-demo asm qui doit lever une erreur : ' + lesson.id + ' #' + i); return; }
+      cok(!r.error, 'bloc asm executable ' + lesson.id + ' #' + i,
+        r.error ? r.errorType + ' ligne ' + r.errorLine + ' : ' + r.error + '\n     ' + b.v.split('\n')[0] : '');
     }
   });
 
@@ -312,6 +362,7 @@ if (ctx.GAMES) {
 function codeSansTexte(code, lang) {
   let c = String(code);
   if (lang === 'python') c = c.replace(/#[^\n]*/g, '');
+  else if (lang === 'asm') c = c.replace(/;[^\n]*/g, '');
   else c = c.replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
   if (lang === 'html') c = c.replace(/>[^<]*</g, '><');          // texte affiche
   return c.replace(/"(?:[^"\\]|\\.)*"/g, '""')
@@ -339,6 +390,6 @@ console.log('  ' + nLessons + ' lecons · ' + nEx + ' exercices · ' + nQuiz + '
 console.log('  ' + cPass.n + ' verifications OK, ' + cBad.length + ' echec(s)');
 if (cBad.length) { console.log('\nEchecs :'); cBad.forEach(b => console.log('  X ' + b)); }
 
-const total = fail + cBad.length;
-console.log('\n' + (total ? 'X  ' + total + ' PROBLEME(S) A CORRIGER' : 'OK — tout est vert (' + (pass + cPass.n) + ' verifications)'));
+const total = fail + failAsm + cBad.length;
+console.log('\n' + (total ? 'X  ' + total + ' PROBLEME(S) A CORRIGER' : 'OK — tout est vert (' + (pass + passAsm + cPass.n) + ' verifications)'));
 process.exitCode = total ? 1 : 0;

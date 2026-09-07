@@ -1,8 +1,10 @@
 ARES — la forge du code
 =======================
-Site d'apprentissage de Python, HTML/CSS et JavaScript pour collegiens et lyceens.
-90 lecons, 133 exercices corriges automatiquement, 128 questions de quiz,
-9 jeux, 6 projets guides. Tout tourne dans le navigateur, sans serveur.
+Site d'apprentissage de Python, HTML/CSS, JavaScript, C/C++/C# et Assembleur
+pour collegiens et lyceens. 180+ lecons, 225+ exercices corriges automatiquement,
+146+ questions de quiz, jeux, projets guides, plus de 20 fiches de reference.
+Comptes optionnels (Firebase) pour synchroniser la progression entre appareils.
+Tout tourne dans le navigateur, sans serveur (sauf le compte/sync, optionnel).
 
 
 LES FICHIERS
@@ -12,15 +14,20 @@ index.html      La version autonome. Double-clic = le site s'ouvre. C'est ce
 ares.html       La meme chose, sans <html>/<head>/<body> : c'est la source de
                 l'artefact Claude (la page est enveloppee automatiquement).
 src/            Le code source, decoupe en morceaux :
-                  shell.html            styles + squelette de l'interface
-                  10/11/12-data-*.js    les 3 parcours libres (contenu pedagogique)
-                  20/21/22-data-pro-*.js les 3 parcours ULTRA (payants)
-                  30-games.js           les banques des 4 jeux
-                  50-pyrun.js           l'interpreteur Python ecrit en JavaScript
-                  60-runners.js         execution JS/HTML + correction des exercices
-                  70-app.js             l'application (navigation, ateliers, XP)
+                  shell.html              styles + squelette de l'interface
+                  05-cloud.js             comptes + sync Firebase (optionnel, no-op si absent)
+                  07-asmrun.js            l'interpreteur Assembleur (x86-64 simplifie)
+                  10/11/12-data-*.js      les 3 parcours libres (contenu pedagogique)
+                  20/21/22-data-pro-*.js  les 3 parcours ULTRA classiques (payants)
+                  23/24/25-data-hercule-*.js  module final "12 Travaux d'Hercule" de chaque ULTRA
+                  26-data-olympiens.js    "Les Olympiens du Code" — Assembleur, cle exclusive
+                  27-data-pro-cfamily.js  parcours combine C / C++ / C#, inclus dans ULTRA
+                  30-games.js             les banques de jeux
+                  50-pyrun.js             l'interpreteur Python ecrit en JavaScript
+                  60-runners.js           execution JS/HTML/Assembleur + correction (pattern pour C/C++/C#)
+                  70-app.js               l'application (navigation, ateliers, XP, cles, comptes)
 build.js        Assemble src/ vers index.html et ares.html.   ->  node build.js
-_test.js        2085 verifications automatiques.              ->  node _test.js
+_test.js        Plus de 3000 verifications automatiques.      ->  node _test.js
 audit.js        Verifie qu'aucun accent ne traine dans du code JavaScript.
 
 REGLE D'OR : on ne modifie JAMAIS index.html ou ares.html a la main.
@@ -29,14 +36,25 @@ On modifie src/, puis on relance :   node _test.js  &&  node build.js
 
 LES CLES ARES ULTRA
 -------------------
-Cle unique (ouvre les 3 parcours ULTRA) :
+Cle unique (ouvre PYTHON ULTRA, WEB ULTRA, JS ULTRA, ET le parcours C/C++/C#) :
     ARES-ULTRA-2026
     PLUS-ULTRA            (meme effet, plus facile a retenir)
+    ARES-3QGZ-9MFP         (l'une des 10 cles distribuees a la vente)
 
-Cles par parcours :
+Cles par parcours (ULTRA classique) :
     ARES-PYTHON-PRO
     ARES-WEB-PRO
     ARES-JS-PRO
+
+Cle du parcours C / C++ / C# seul (sans acheter tout ULTRA) :
+    ARES-CFAMILY-PRO
+
+Cle des "Olympiens du Code" (Assembleur) — PRODUIT A PART, VENDU SEPAREMENT :
+    OLYMPE-ASM-ZEUS
+Cette cle n'ouvre QUE l'Assembleur. Aucune cle ULTRA/"all" ne l'ouvre jamais :
+le parcours est volontairement exclu du tableau PRO (que la cle "all" parcourt)
+et porte en plus un indicateur exclusif:true verifie dans unlocked(). Les deux
+verrous sont independants par construction, pas seulement par convention.
 
 La saisie ignore les minuscules/majuscules. Une cle activee reste valable
 pour toujours sur l'appareil (elle est enregistree dans le navigateur).
@@ -45,6 +63,8 @@ Pour changer les cles : dans src/70-app.js, objet KEYS. Les valeurs sont
 encodees en base64 pour qu'on ne les lise pas au premier coup d'oeil.
 Exemple pour fabriquer une nouvelle cle, dans la console du navigateur :
     btoa("MA-NOUVELLE-CLE")
+Pour qu'une nouvelle cle reste bien isolee (comme les Olympiens), NE PAS
+ajouter son parcours au tableau PRO, et mettre exclusif:true sur le parcours.
 
 
 IMPORTANT SI TU VENDS L'ACCES
@@ -106,6 +126,35 @@ conditions, boucles for/while/break/continue, listes, tuples, dictionnaires,
 tranches [a:b:c], fonctions (defauts, arguments nommes, *args, lambda),
 comprehensions de liste et de dictionnaire, expressions generatrices,
 classes, heritage, super(), __init__, __str__, exceptions try/except/finally
-et raise, modules math, random et time, plus 40 methodes de chaines/listes/dicos.
-Les erreurs sont traduites en francais avec le numero de ligne.
-Une boucle infinie est coupee au bout de 900 000 etapes.
+et raise, modules math, random et time, annotations de type (x: int = 5),
+plus 40 methodes de chaines/listes/dicos. Les erreurs sont traduites en
+francais avec le numero de ligne. Une boucle infinie est coupee au bout
+de 900 000 etapes.
+
+
+CE QUE COUVRE L'INTERPRETEUR ASSEMBLEUR (src/07-asmrun.js)
+-----------------------------------------------------------
+Un vrai simulateur de processeur x86-64 simplifie, syntaxe Intel :
+16 registres generaux (rax-rdx, rsi, rdi, rbp, rsp, r8-r15) avec leurs
+alias 32 bits (eax, ebx...), les mnemoniques mov/add/sub/inc/dec/mul/imul/
+div/idiv/and/or/xor/not/shl/shr/cmp/test/jmp/je/jz/jne/jnz/jg/jge/jl/jle/
+js/jns/push/pop/call/ret/nop, une pile de donnees et une pile d'appels
+separees, un modele de memoire type .data (nom: dq v1,v2,...) avec adressage
+indexe ([nom], [nom+reg], [nom+N]). "print"/"println" sont des pseudo-
+instructions INVENTEES POUR LA FORGE : un vrai processeur ne sait pas
+afficher du texte tout seul (il faut un appel systeme a l'OS) — c'est
+explique aux eleves dans la toute premiere lecon du module. Boucle infinie
+coupee au bout de 500 000 etapes. C'est un sous-ensemble pedagogique, pas
+un assembleur exhaustif (pas de segments, pas de SIMD, pas de mode reel).
+
+
+LE CAS PARTICULIER DE C / C++ / C# (src/27-data-pro-cfamily.js)
+------------------------------------------------------------------
+Contrairement a Python/JS/Assembleur, aucun compilateur C/C++/C# ne tourne
+dans un navigateur. La correction utilise donc checkPattern (src/60-runners.js) :
+comme pour HTML/CSS, on verifie que le code contient les bons mots-cles/
+structures via des regex (`must`), pas qu'il s'execute reellement. Le bouton
+"Forger (valider)" fait cette verification ; le bouton Executer affiche un
+message explicite au lieu d'un vrai resultat. Chaque exercice/bloc porte un
+champ `lang: 'c'|'cpp'|'csharp'` (lu via `ex.lang || p.lang` et `b.lang || p.lang`)
+puisque les trois langages cohabitent dans un seul parcours.

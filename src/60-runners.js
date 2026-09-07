@@ -269,10 +269,48 @@ var Runner = (function () {
     return { ok: true, title: 'Construction validée !', msg: ex.success || 'Ta page contient tout ce qui etait demande.' };
   }
 
+  // Assembleur : execution reelle, exactement comme Python (meme forme de
+  // resultat, memes principes de comparaison de sortie).
+  function checkAsm(code, ex) {
+    var r = checkRules(code, ex);
+    if (r) return r;
+    var tests = ex.tests || [{ expect: ex.expect }];
+    for (var i = 0; i < tests.length; i++) {
+      var t = tests[i];
+      var run = AsmRun.run(code);
+      if (run.error) return { ok: false, title: run.errorType + (run.errorLine ? ' — ligne ' + run.errorLine : ''), msg: run.error, out: run.out };
+      if (t.expect !== undefined && norm(run.out) !== norm(t.expect))
+        return {
+          ok: false, title: 'Pas encore la bonne sortie', msg: diffHint(t.expect, run.out),
+          expected: norm(t.expect), got: norm(run.out)
+        };
+      if (t.regs) {
+        for (var reg in t.regs) {
+          var attendu = t.regs[reg], obtenu = run.regs ? run.regs[AsmRun.normReg(reg)] : undefined;
+          if (obtenu !== attendu)
+            return { ok: false, title: 'Registre incorrect', msg: 'Le registre ' + reg + ' devrait valoir ' + attendu + ' a la fin, il vaut ' + obtenu + '.' };
+        }
+      }
+    }
+    return { ok: true, title: 'Instructions validees !', msg: ex.success || 'Ton programme s’execute exactement comme attendu.' };
+  }
+
+  // C / C++ / C# : sans compilateur disponible dans un site statique, la
+  // correction verifie la structure du code ecrit (comme pour HTML/CSS),
+  // pas son execution reelle.
+  function checkPattern(code, ex) {
+    var r = checkRules(code, ex);
+    if (r) return r;
+    return { ok: true, title: 'Code valide !', msg: ex.success || 'Ton code contient exactement ce qui etait demande.' };
+  }
+
   function check(lang, code, ex) {
     if (!code || !code.trim()) return { ok: false, title: 'Editeur vide', msg: 'Écris ton code dans l’editeur avant de forger.' };
     if (lang === 'python') return checkPython(code, ex);
     if (lang === 'js') return checkJS(code, ex);
+    if (lang === 'html') return checkHTML(code, ex);
+    if (lang === 'asm') return checkAsm(code, ex);
+    if (lang === 'c' || lang === 'cpp' || lang === 'csharp') return checkPattern(code, ex);
     return checkHTML(code, ex);
   }
 

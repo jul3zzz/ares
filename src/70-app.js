@@ -7,8 +7,12 @@
   if (typeof document === 'undefined') return;   // charge aussi dans node pour les tests
 
   var FREE = [PATH_PYTHON, PATH_WEB, PATH_JS];
-  var PRO = [PATH_PRO_PYTHON, PATH_PRO_WEB, PATH_PRO_JS];
-  var ALL = FREE.concat(PRO);
+  var PRO = [PATH_PRO_PYTHON, PATH_PRO_WEB, PATH_PRO_JS, PATH_PRO_CFAMILY];
+  // Les Olympiens du Code restent HORS du tableau PRO : la cle "tout debloquer"
+  // (voir tryKey) ne parcourt que PRO, donc ne peut jamais ouvrir ce chemin.
+  // Seule sa propre cle, exclusive, le deverrouille (voir unlocked ci-dessous).
+  var OLYMPIENS = [PATH_OLYMPIENS];
+  var ALL = FREE.concat(PRO).concat(OLYMPIENS);
 
   /* ================= progression ================= */
   var STORE = 'ares.progress.v1';
@@ -63,7 +67,9 @@
     { id: 'herc-all', ico: '👑', nom: 'Les 12 Travaux', desc: 'Les 3 séries de 12 Travaux accomplies', test: function () {
         function fait(pre) { for (var i = 1; i <= 12; i++) if (!P.done[pre + i]) return false; return true; }
         return fait('ph-') && fait('wh-') && fait('jh-');
-      } }
+      } },
+    { id: 'cfamily', ico: '🧱', nom: 'Trois langages, un socle', desc: 'Parcours C / C++ / C# terminé', test: function () { return pathDone(PATH_PRO_CFAMILY); } },
+    { id: 'olympien', ico: '⚡', nom: 'Olympien', desc: 'La formation assembleur terminée', test: function () { return pathDone(PATH_OLYMPIENS); } }
   ];
 
   function eachLesson(cb) {
@@ -82,7 +88,12 @@
     path.days.forEach(function (d) { d.lessons.forEach(function (l) { total++; if (P.done[l.id]) done++; }); });
     return { total: total, done: done, pct: total ? Math.round(done / total * 100) : 0 };
   }
-  function unlocked(path) { return !path.pro || P.keys.indexOf(path.id) >= 0 || P.keys.indexOf('all') >= 0; }
+  function unlocked(path) {
+    if (!path.pro) return true;
+    if (P.keys.indexOf(path.id) >= 0) return true;
+    if (path.exclusif) return false;   // seule sa propre cle fonctionne, jamais la cle "tout debloquer"
+    return P.keys.indexOf('all') >= 0;
+  }
 
   /* clefs de deverrouillage (encodees pour ne pas être lisibles au premier coup d'oeil) */
   var KEYS = {
@@ -101,7 +112,12 @@
     'QVJFUy00S1BELTdSVFM=': 'all',
     'QVJFUy04SE1ZLTJRV0w=': 'all',
     'QVJFUy0xVlhLLTVCVE4=': 'all',
-    'QVJFUy0zUUdaLTlNRlA=': 'all'
+    'QVJFUy0zUUdaLTlNRlA=': 'all',
+    // C/C++/C# fait partie du bundle ULTRA normal : sa propre cle, ET la cle "all", l'ouvrent.
+    'QVJFUy1DRkFNSUxZLVBSTw==': 'pro-cfamily',
+    // Les Olympiens du Code : produit exclusif, JAMAIS ouvert par une cle ULTRA
+    // (PATH_OLYMPIENS n'est pas dans le tableau PRO — voir plus haut).
+    'T0xZTVBFLUFTTS1aRVVT': 'olympiens-asm'
   };
   function tryKey(raw) {
     var k = String(raw || '').trim().toUpperCase().replace(/\s+/g, '');
@@ -151,6 +167,10 @@
   var PYNB = 'print|len|range|str|int|float|bool|list|dict|tuple|set|sum|min|max|abs|round|sorted|reversed|enumerate|zip|type|input|isinstance|open|map|filter|any|all|super|self';
   var JSKW = 'const|let|var|function|return|if|else|for|while|do|break|continue|class|extends|new|this|super|try|catch|finally|throw|typeof|instanceof|of|in|switch|case|default|async|await|yield|delete|void|null|undefined|true|false';
   var JSNB = 'console|document|window|Math|JSON|Object|Array|Number|String|Boolean|Promise|setTimeout|setInterval|requestAnimationFrame|querySelector|querySelectorAll|addEventListener|createElement|appendChild|textContent|length|push|pop|map|filter|reduce|forEach|includes';
+  var CKW = 'auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|inline|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|class|public|private|protected|namespace|using|new|delete|template|typename|virtual|override|try|catch|throw|this|true|false|nullptr|bool|string|static_cast|foreach|var|in|is|as|get|set|readonly|sealed|interface|abstract|async|await';
+  var CNB = 'printf|scanf|malloc|free|sizeof|std|cout|cin|endl|vector|string|map|set|pair|make_pair|push_back|size|length|Console|WriteLine|ReadLine|List|Dictionary|Main|include|define|ifndef|endif|pragma';
+  var ASMKW = 'mov|add|sub|inc|dec|mul|imul|div|idiv|and|or|xor|not|shl|shr|cmp|test|jmp|je|jz|jne|jnz|jg|jge|jl|jle|js|jns|push|pop|call|ret|nop|print|println|dq|dd|db|section|data|text';
+  var ASMNB = 'rax|rbx|rcx|rdx|rsi|rdi|rbp|rsp|r8|r9|r10|r11|r12|r13|r14|r15|eax|ebx|ecx|edx|esi|edi|ebp|esp';
 
   function hl(code, lang) {
     var s = esc(code);
@@ -160,9 +180,27 @@
         .replace(/(&lt;\/?)([a-zA-Z][\w-]*)/g, '$1<span class="tg">$2</span>')
         .replace(/([\w-]+)=("[^"]*"|'[^']*')/g, '<span class="nb">$1</span>=<span class="str">$2</span>');
     }
-    var kw = lang === 'js' ? JSKW : PYKW, nb = lang === 'js' ? JSNB : PYNB;
+    if (lang === 'asm') {
+      return s.replace(/(;[^\n]*)|("(?:[^"\\\n]|\\.)*")|\b([a-zA-Z_]\w*)(?=\s*:)|\b(-?\d+\.?\d*)\b|\b(\w+)\b/g,
+        function (m, c, str, label, num, word) {
+          if (c) return '<span class="cm">' + c + '</span>';
+          if (str) return '<span class="str">' + str + '</span>';
+          if (label) return '<span class="fn">' + label + '</span>';
+          if (num) return '<span class="nu">' + num + '</span>';
+          if (word) {
+            var wl = word.toLowerCase();
+            if (new RegExp('^(' + ASMKW + ')$', 'i').test(wl)) return '<span class="kw">' + word + '</span>';
+            if (new RegExp('^(' + ASMNB + ')$', 'i').test(wl)) return '<span class="nb">' + word + '</span>';
+            return word;
+          }
+          return m;
+        });
+    }
+    var kw = lang === 'js' ? JSKW : (lang === 'c' || lang === 'cpp' || lang === 'csharp') ? CKW : PYKW;
+    var nb = lang === 'js' ? JSNB : (lang === 'c' || lang === 'cpp' || lang === 'csharp') ? CNB : PYNB;
+    var comLine = lang === 'python' ? '#[^\\n]*' : '\\/\\/[^\\n]*';
     var re = new RegExp(
-      '(' + (lang === 'js' ? '\\/\\/[^\\n]*' : '#[^\\n]*') + ')' +
+      '(' + comLine + '|\\/\\*[\\s\\S]*?\\*\\/)' +
       '|("(?:[^"\\\\\\n]|\\\\.)*"|\'(?:[^\'\\\\\\n]|\\\\.)*\'|`(?:[^`\\\\]|\\\\.)*`)' +
       '|\\b(' + kw + ')\\b' +
       '|\\b(' + nb + ')\\b' +
@@ -175,6 +213,12 @@
       if (num) return '<span class="nu">' + num + '</span>';
       return m;
     });
+  }
+
+  // Extension de fichier affichee dans la barre de l'editeur, selon le langage.
+  function fileExt(lang) {
+    return lang === 'python' ? 'py' : lang === 'js' ? 'js' : lang === 'asm' ? 'asm' :
+      lang === 'c' ? 'c' : lang === 'cpp' ? 'cpp' : lang === 'csharp' ? 'cs' : 'html';
   }
 
   /* ================= toasts et etincelles ================= */
@@ -258,6 +302,21 @@
     if (lang === 'html') {
       makePreview(previewEl, code);
       if (outEl) outEl.innerHTML = '<span class="muted">Aperçu mis à jour.</span>';
+      return { error: null };
+    }
+    if (lang === 'asm') {
+      var ra = AsmRun.run(code);
+      outEl.innerHTML = '';
+      if (ra.out) outEl.appendChild(document.createTextNode(ra.out));
+      if (ra.error) {
+        var ea = el('div', 'err', esc('✖ ' + ra.errorType + (ra.errorLine ? ' — ligne ' + ra.errorLine : '') + '\n' + ra.error));
+        ea.style.whiteSpace = 'pre-wrap';
+        outEl.appendChild(ea);
+      } else if (!ra.out) outEl.innerHTML = '<span class="muted">(aucun affichage — utilise print pour voir quelque chose)</span>';
+      return ra;
+    }
+    if (lang === 'c' || lang === 'cpp' || lang === 'csharp') {
+      outEl.innerHTML = '<span class="muted">Ce langage n’a pas de compilateur dans la forge : clique sur « Forger (valider) » pour vérifier la structure de ton code.</span>';
       return { error: null };
     }
     // JavaScript
@@ -413,6 +472,7 @@
     box.appendChild(why);
 
     box.appendChild(proBanner());
+    box.appendChild(olympiensBanner());
 
     var foot = el('div', 'foot');
     foot.innerHTML = '<span>ARES — la forge du code. Fait pour les debutants francophones.</span><span>Ta progression est enregistrée dans ton navigateur.</span>';
@@ -449,10 +509,21 @@
         '<li>La Forge du Serpent — Python pro : objets, exceptions, algorithmes, pendu, carnet de notes, RPG</li>' +
         '<li>L’Atelier du Bâtisseur — Grid, variables CSS, animations, accessibilité, portfolio, landing page</li>' +
         '<li>L’Arsenal de l’Étincelle — closures, classes, DOM avance, asynchrone, canvas, quiz, casse-brique</li>' +
-        '<li>23 modules supplementaires, 6 projets guidés étape par étape</li>' +
+        '<li>C, C++ et C# réunis dans un seul parcours — le trio qui fait tourner des systèmes entiers</li>' +
       '</ul>' +
       '<div class="price"><b>Clé unique</b><span>à saisir une seule fois, valable pour toujours sur cet appareil</span></div>' +
       '<div class="cta-row"><button class="btn primary" data-go="pro">Déverrouiller ARES ULTRA</button></div>';
+    return d;
+  }
+
+  function olympiensBanner() {
+    var d = el('div', 'olympe-banner');
+    d.innerHTML =
+      '<span class="kicker">Encore au-delà</span>' +
+      '<h2>Les Olympiens du Code</h2>' +
+      '<p style="color:var(--ash);max-width:62ch;margin-top:8px">La formation ultime, vendue à part : l’assembleur x86-64, ' +
+      'le langage qui parle directement au processeur. Un vrai processeur simulé, neuf modules, et une clé qui n’ouvre que ça.</p>' +
+      '<div class="cta-row"><button class="btn primary" data-go="olympiens" style="background:linear-gradient(180deg,var(--olympe),#8a6f1f);border-color:#8a6f1f;color:#241a05">Découvrir la formation</button></div>';
     return d;
   }
 
@@ -524,6 +595,77 @@
     }
     $('#keyBtn').addEventListener('click', submitKey);
     $('#keyInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') submitKey(); });
+  }
+
+  /* ---------- page Les Olympiens du Code (produit exclusif, hors ULTRA) ---------- */
+  function viewOlympiens() {
+    var p = PATH_OLYMPIENS;
+    var box = el('div');
+    var head = el('div');
+    head.innerHTML =
+      '<div class="crumb"><button data-go="home">Accueil</button> · Les Olympiens du Code</div>' +
+      '<div class="path-hero" style="--c:var(--olympe)">' +
+        '<span class="kicker">Formation exclusive · clé séparée d’ARES ULTRA</span>' +
+        '<h1 style="color:var(--olympe)">Les Olympiens du Code</h1>' +
+        '<p>' + esc(p.promise) + '</p>' +
+      '</div>';
+    box.appendChild(head);
+
+    var grid = el('div', 'paths');
+    grid.style.marginTop = '22px';
+    grid.appendChild(pathCard(p));
+    box.appendChild(grid);
+
+    var detailHTML = el('div');
+    detailHTML.innerHTML = '<div class="sec-head"><div><h2>Le programme complet</h2><p>Neuf modules, du premier <code>mov</code> jusqu’au tri d’un tableau entier en assembleur pur.</p></div></div>';
+    var g = el('div', 'grid3');
+    p.days.forEach(function (d) {
+      var c = el('div', 'card');
+      c.innerHTML = '<h3 style="color:var(--olympe);font-size:22px">Module ' + d.n + ' — ' + esc(d.title) + '</h3>' +
+        '<p style="color:var(--ash2);font-size:13px;font-weight:700;margin-bottom:8px">' + esc(d.sub) + '</p>' +
+        '<p style="font-size:14px">' + d.lessons.length + ' leçons</p>';
+      g.appendChild(c);
+    });
+    detailHTML.appendChild(g);
+    box.appendChild(detailHTML);
+
+    var why = el('div', 'grid2');
+    why.style.marginTop = '30px';
+    why.innerHTML =
+      '<div class="card"><h3>Un vrai processeur simulé</h3><p>Chaque instruction s’exécute réellement dans la forge : registres, pile, ' +
+      'drapeaux, sauts, appels de fonction. Ce n’est pas de la lecture, c’est de l’exécution — comme pour Python.</p></div>' +
+      '<div class="card"><h3>Une formation à part</h3><p>Les Olympiens du Code ne font pas partie d’ARES ULTRA : c’est un produit ' +
+      'distinct, avec sa propre clé. Débloquer ULTRA ne débloque jamais cette formation, et inversement.</p></div>';
+    box.appendChild(why);
+
+    var keyBox = el('div', 'olympe-banner');
+    var deja = unlocked(p) ? '<p style="color:var(--vine);font-weight:700;margin-bottom:10px">✔ Formation déverrouillée sur cet appareil.</p>' : '';
+    keyBox.innerHTML =
+      '<span class="kicker">Clé exclusive</span>' +
+      '<h2 style="margin-top:12px">Entrer la clé des Olympiens</h2>' + deja +
+      '<p style="color:var(--ash);margin:10px 0 14px">Cette clé n’ouvre que cette formation — elle est indépendante de la clé ARES ULTRA.</p>' +
+      '<div class="keyform"><input id="olyKeyInput" placeholder="XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">' +
+      '<button class="btn primary" id="olyKeyBtn">Déverrouiller</button></div>' +
+      '<p id="olyKeyMsg" style="margin-top:12px;font-size:14px"></p>';
+    box.appendChild(keyBox);
+
+    show(wrap(box), 'olympiens');
+
+    function submitKey() {
+      var v = $('#olyKeyInput').value;
+      var res = tryKey(v);
+      var msg = $('#olyKeyMsg');
+      if (res === null) { msg.style.color = 'var(--blood)'; msg.textContent = '✖ Clé inconnue. Vérifie les tirets et les majuscules.'; }
+      else if (!res.length) { msg.style.color = 'var(--ember)'; msg.textContent = 'Cette clé est déjà active sur cet appareil.'; }
+      else {
+        msg.style.color = 'var(--vine)'; msg.textContent = '✔ Déverrouillé : ' + res.join(', ');
+        toast('👑 Olympiens déverrouillés', res.join(', '));
+        sparks(); buildNav();
+        setTimeout(viewOlympiens, 900);
+      }
+    }
+    $('#olyKeyBtn').addEventListener('click', submitKey);
+    $('#olyKeyInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') submitKey(); });
   }
 
   /* ---------- page parcours ---------- */
@@ -685,7 +827,8 @@
     }
     if (b.t === 'code') {
       var lang = b.lang || p.lang;
-      var cap = el('div', 'codecap', '<i></i>' + (lang === 'python' ? 'python' : lang === 'js' ? 'javascript' : 'html'));
+      var capLabel = { python: 'python', js: 'javascript', html: 'html', asm: 'assembleur', c: 'c', cpp: 'c++', csharp: 'c#' }[lang] || lang;
+      var cap = el('div', 'codecap', '<i></i>' + capLabel);
       host.appendChild(cap);
       var pre = el('pre', 'code');
       pre.innerHTML = hl(b.v, lang);
@@ -702,7 +845,7 @@
       editorWrap.style.display = 'none';
       var ta = el('textarea');
       var ed = el('div', 'editor');
-      ed.appendChild(el('div', 'editor-bar', '<span class="dots"><i></i><i></i><i></i></span><span class="fname">exemple.' + (lang === 'python' ? 'py' : lang === 'js' ? 'js' : 'html') + '</span>'));
+      ed.appendChild(el('div', 'editor-bar', '<span class="dots"><i></i><i></i><i></i></span><span class="fname">exemple.' + fileExt(lang) + '</span>'));
       ta.value = b.v; ta.spellcheck = false;
       ed.appendChild(ta);
       editorWrap.appendChild(ed);
@@ -735,7 +878,7 @@
 
   /* ---------- exercice ---------- */
   function renderExercise(l, p, ex, i) {
-    var lang = p.lang;
+    var lang = ex.lang || p.lang;
     var exId = l.id + '-' + i;
     var card = el('div', 'pane');
     card.style.marginBottom = '18px';
@@ -745,8 +888,7 @@
 
     var ed = el('div', 'editor');
     ed.appendChild(el('div', 'editor-bar',
-      '<span class="dots"><i></i><i></i><i></i></span><span class="fname">exercice.' +
-      (lang === 'python' ? 'py' : lang === 'js' ? 'js' : 'html') + '</span>'));
+      '<span class="dots"><i></i><i></i><i></i></span><span class="fname">exercice.' + fileExt(lang) + '</span>'));
     var ta = el('textarea');
     ta.spellcheck = false;
     ta.value = (P.code && P.code[exId]) || ex.starter || '';
@@ -1470,6 +1612,22 @@
     pro.innerHTML = '<span class="dot" style="--c:var(--ember)"></span>Déverrouiller ULTRA';
     pro.addEventListener('click', viewPro);
     g.appendChild(pro);
+
+    var o = $('#navOlympiens'); o.innerHTML = '';
+    OLYMPIENS.forEach(function (p) {
+      var s = pathStats(p), open = unlocked(p);
+      var b = el('button', 'nav-item');
+      b.dataset.path = p.id;
+      b.innerHTML = '<span class="dot" style="--c:' + (open ? p.color : 'var(--ash2)') + '"></span>' +
+        esc(p.name) + '<span class="lk">' + (open ? s.done + '/' + s.total : '🔒') + '</span>';
+      b.addEventListener('click', function () { viewPath(p); });
+      o.appendChild(b);
+    });
+    var oly = el('button', 'nav-item');
+    oly.dataset.go = 'olympiens';
+    oly.innerHTML = '<span class="dot" style="--c:var(--olympe)"></span>La formation ultime';
+    oly.addEventListener('click', viewOlympiens);
+    o.appendChild(oly);
   }
 
   /* braises animees derriere le titre */
@@ -1558,6 +1716,7 @@
       else if (dest === 'memo') viewMemo();
       else if (dest === 'profile') viewProfile();
       else if (dest === 'pro') viewPro();
+      else if (dest === 'olympiens') viewOlympiens();
     });
     $('#burger').addEventListener('click', function () { $('#rail').classList.toggle('open'); });
 
