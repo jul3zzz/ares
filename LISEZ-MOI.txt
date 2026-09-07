@@ -39,7 +39,6 @@ LES CLES ARES ULTRA
 Cle unique (ouvre PYTHON ULTRA, WEB ULTRA, JS ULTRA, ET le parcours C/C++/C#) :
     ARES-ULTRA-2026
     PLUS-ULTRA            (meme effet, plus facile a retenir)
-    ARES-3QGZ-9MFP         (l'une des 10 cles distribuees a la vente)
 
 Cles par parcours (ULTRA classique) :
     ARES-PYTHON-PRO
@@ -49,12 +48,22 @@ Cles par parcours (ULTRA classique) :
 Cle du parcours C / C++ / C# seul (sans acheter tout ULTRA) :
     ARES-CFAMILY-PRO
 
+20 cles de vente "PRO" (une par client, toutes = ARES ULTRA complet, 2 lots de 10) :
+    Lot 1 : ARES-7K2M-9XQP  ARES-3TZL-6BWH  ARES-5RNF-8VDK  ARES-2MPX-4GHZ  ARES-9WQT-1FKR
+            ARES-6XZB-3NVM  ARES-4KPD-7RTS  ARES-8HMY-2QWL  ARES-1VXK-5BTN  ARES-3QGZ-9MFP
+    Lot 2 : ARES-PJWZ-CZ5H  ARES-GQJ5-6GQC  ARES-B6UF-Y8C4  ARES-HKUF-XWMZ  ARES-SGX8-Z27E
+            ARES-GAAA-3JKD  ARES-GJQG-22DJ  ARES-PW5F-RE7W  ARES-MZT5-45BE  ARES-RAKU-XH6Y
+
 Cle des "Olympiens du Code" (Assembleur) — PRODUIT A PART, VENDU SEPAREMENT :
     OLYMPE-ASM-ZEUS
 Cette cle n'ouvre QUE l'Assembleur. Aucune cle ULTRA/"all" ne l'ouvre jamais :
 le parcours est volontairement exclu du tableau PRO (que la cle "all" parcourt)
 et porte en plus un indicateur exclusif:true verifie dans unlocked(). Les deux
 verrous sont independants par construction, pas seulement par convention.
+
+10 cles de vente "ELITE" (une par client, toutes = Olympiens du Code / Assembleur) :
+    OLYMPE-ZJ7C-HSM9  OLYMPE-9X7Q-UNGE  OLYMPE-DKMV-87W5  OLYMPE-R3J7-JPRW  OLYMPE-4E48-HNNS
+    OLYMPE-7DXE-4J2R  OLYMPE-3AMR-WP63  OLYMPE-96J4-3PT9  OLYMPE-VR82-3A42  OLYMPE-METX-AQK9
 
 La saisie ignore les minuscules/majuscules. Une cle activee reste valable
 pour toujours sur l'appareil (elle est enregistree dans le navigateur).

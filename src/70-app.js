@@ -115,9 +115,31 @@
     'QVJFUy0zUUdaLTlNRlA=': 'all',
     // C/C++/C# fait partie du bundle ULTRA normal : sa propre cle, ET la cle "all", l'ouvrent.
     'QVJFUy1DRkFNSUxZLVBSTw==': 'pro-cfamily',
+    // 10 cles de vente supplementaires (deuxieme lot), toutes = ARES ULTRA complet
+    'QVJFUy1QSldaLUNaNUg=': 'all',
+    'QVJFUy1HUUo1LTZHUUM=': 'all',
+    'QVJFUy1CNlVGLVk4QzQ=': 'all',
+    'QVJFUy1IS1VGLVhXTVo=': 'all',
+    'QVJFUy1TR1g4LVoyN0U=': 'all',
+    'QVJFUy1HQUFBLTNKS0Q=': 'all',
+    'QVJFUy1HSlFHLTIyREo=': 'all',
+    'QVJFUy1QVzVGLVJFN1c=': 'all',
+    'QVJFUy1NWlQ1LTQ1QkU=': 'all',
+    'QVJFUy1SQUtVLVhINlk=': 'all',
     // Les Olympiens du Code : produit exclusif, JAMAIS ouvert par une cle ULTRA
     // (PATH_OLYMPIENS n'est pas dans le tableau PRO — voir plus haut).
-    'T0xZTVBFLUFTTS1aRVVT': 'olympiens-asm'
+    'T0xZTVBFLUFTTS1aRVVT': 'olympiens-asm',
+    // 10 cles de vente pour les Olympiens du Code (une par client, meme regle d'isolation)
+    'T0xZTVBFLVpKN0MtSFNNOQ==': 'olympiens-asm',
+    'T0xZTVBFLTlYN1EtVU5HRQ==': 'olympiens-asm',
+    'T0xZTVBFLURLTVYtODdXNQ==': 'olympiens-asm',
+    'T0xZTVBFLVIzSjctSlBSVw==': 'olympiens-asm',
+    'T0xZTVBFLTRFNDgtSE5OUw==': 'olympiens-asm',
+    'T0xZTVBFLTdEWEUtNEoyUg==': 'olympiens-asm',
+    'T0xZTVBFLTNBTVItV1A2Mw==': 'olympiens-asm',
+    'T0xZTVBFLTk2SjQtM1BUOQ==': 'olympiens-asm',
+    'T0xZTVBFLVZSODItM0E0Mg==': 'olympiens-asm',
+    'T0xZTVBFLU1FVFgtQVFLOQ==': 'olympiens-asm'
   };
   function tryKey(raw) {
     var k = String(raw || '').trim().toUpperCase().replace(/\s+/g, '');
