@@ -69,7 +69,7 @@
         return fait('ph-') && fait('wh-') && fait('jh-');
       } },
     { id: 'cfamily', ico: '🧱', nom: 'Trois langages, un socle', desc: 'Parcours C / C++ / C# terminé', test: function () { return pathDone(PATH_PRO_CFAMILY); } },
-    { id: 'olympien', ico: '⚡', nom: 'Olympien', desc: 'La formation assembleur terminée', test: function () { return pathDone(PATH_OLYMPIENS); } }
+    { id: 'olympien', ico: '🔱', nom: 'Olympien', desc: 'La formation C++ elite terminée', test: function () { return pathDone(PATH_OLYMPIENS); } }
   ];
 
   function eachLesson(cb) {
@@ -128,18 +128,18 @@
     'QVJFUy1SQUtVLVhINlk=': 'all',
     // Les Olympiens du Code : produit exclusif, JAMAIS ouvert par une cle ULTRA
     // (PATH_OLYMPIENS n'est pas dans le tableau PRO — voir plus haut).
-    'T0xZTVBFLUFTTS1aRVVT': 'olympiens-asm',
+    'T0xZTVBFLUNQUC1aRVVT': 'olympiens-cpp',
     // 10 cles de vente pour les Olympiens du Code (une par client, meme regle d'isolation)
-    'T0xZTVBFLVpKN0MtSFNNOQ==': 'olympiens-asm',
-    'T0xZTVBFLTlYN1EtVU5HRQ==': 'olympiens-asm',
-    'T0xZTVBFLURLTVYtODdXNQ==': 'olympiens-asm',
-    'T0xZTVBFLVIzSjctSlBSVw==': 'olympiens-asm',
-    'T0xZTVBFLTRFNDgtSE5OUw==': 'olympiens-asm',
-    'T0xZTVBFLTdEWEUtNEoyUg==': 'olympiens-asm',
-    'T0xZTVBFLTNBTVItV1A2Mw==': 'olympiens-asm',
-    'T0xZTVBFLTk2SjQtM1BUOQ==': 'olympiens-asm',
-    'T0xZTVBFLVZSODItM0E0Mg==': 'olympiens-asm',
-    'T0xZTVBFLU1FVFgtQVFLOQ==': 'olympiens-asm'
+    'T0xZTVBFLVpKN0MtSFNNOQ==': 'olympiens-cpp',
+    'T0xZTVBFLTlYN1EtVU5HRQ==': 'olympiens-cpp',
+    'T0xZTVBFLURLTVYtODdXNQ==': 'olympiens-cpp',
+    'T0xZTVBFLVIzSjctSlBSVw==': 'olympiens-cpp',
+    'T0xZTVBFLTRFNDgtSE5OUw==': 'olympiens-cpp',
+    'T0xZTVBFLTdEWEUtNEoyUg==': 'olympiens-cpp',
+    'T0xZTVBFLTNBTVItV1A2Mw==': 'olympiens-cpp',
+    'T0xZTVBFLTk2SjQtM1BUOQ==': 'olympiens-cpp',
+    'T0xZTVBFLVZSODItM0E0Mg==': 'olympiens-cpp',
+    'T0xZTVBFLU1FVFgtQVFLOQ==': 'olympiens-cpp'
   };
   function tryKey(raw) {
     var k = String(raw || '').trim().toUpperCase().replace(/\s+/g, '');
@@ -191,8 +191,6 @@
   var JSNB = 'console|document|window|Math|JSON|Object|Array|Number|String|Boolean|Promise|setTimeout|setInterval|requestAnimationFrame|querySelector|querySelectorAll|addEventListener|createElement|appendChild|textContent|length|push|pop|map|filter|reduce|forEach|includes';
   var CKW = 'auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|inline|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|class|public|private|protected|namespace|using|new|delete|template|typename|virtual|override|try|catch|throw|this|true|false|nullptr|bool|string|static_cast|foreach|var|in|is|as|get|set|readonly|sealed|interface|abstract|async|await';
   var CNB = 'printf|scanf|malloc|free|sizeof|std|cout|cin|endl|vector|string|map|set|pair|make_pair|push_back|size|length|Console|WriteLine|ReadLine|List|Dictionary|Main|include|define|ifndef|endif|pragma';
-  var ASMKW = 'mov|add|sub|inc|dec|mul|imul|div|idiv|and|or|xor|not|shl|shr|cmp|test|jmp|je|jz|jne|jnz|jg|jge|jl|jle|js|jns|push|pop|call|ret|nop|print|println|dq|dd|db|section|data|text';
-  var ASMNB = 'rax|rbx|rcx|rdx|rsi|rdi|rbp|rsp|r8|r9|r10|r11|r12|r13|r14|r15|eax|ebx|ecx|edx|esi|edi|ebp|esp';
 
   function hl(code, lang) {
     var s = esc(code);
@@ -201,22 +199,6 @@
         .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="cm">$1</span>')
         .replace(/(&lt;\/?)([a-zA-Z][\w-]*)/g, '$1<span class="tg">$2</span>')
         .replace(/([\w-]+)=("[^"]*"|'[^']*')/g, '<span class="nb">$1</span>=<span class="str">$2</span>');
-    }
-    if (lang === 'asm') {
-      return s.replace(/(;[^\n]*)|("(?:[^"\\\n]|\\.)*")|\b([a-zA-Z_]\w*)(?=\s*:)|\b(-?\d+\.?\d*)\b|\b(\w+)\b/g,
-        function (m, c, str, label, num, word) {
-          if (c) return '<span class="cm">' + c + '</span>';
-          if (str) return '<span class="str">' + str + '</span>';
-          if (label) return '<span class="fn">' + label + '</span>';
-          if (num) return '<span class="nu">' + num + '</span>';
-          if (word) {
-            var wl = word.toLowerCase();
-            if (new RegExp('^(' + ASMKW + ')$', 'i').test(wl)) return '<span class="kw">' + word + '</span>';
-            if (new RegExp('^(' + ASMNB + ')$', 'i').test(wl)) return '<span class="nb">' + word + '</span>';
-            return word;
-          }
-          return m;
-        });
     }
     var kw = lang === 'js' ? JSKW : (lang === 'c' || lang === 'cpp' || lang === 'csharp') ? CKW : PYKW;
     var nb = lang === 'js' ? JSNB : (lang === 'c' || lang === 'cpp' || lang === 'csharp') ? CNB : PYNB;
@@ -239,7 +221,7 @@
 
   // Extension de fichier affichee dans la barre de l'editeur, selon le langage.
   function fileExt(lang) {
-    return lang === 'python' ? 'py' : lang === 'js' ? 'js' : lang === 'asm' ? 'asm' :
+    return lang === 'python' ? 'py' : lang === 'js' ? 'js' :
       lang === 'c' ? 'c' : lang === 'cpp' ? 'cpp' : lang === 'csharp' ? 'cs' : 'html';
   }
 
@@ -325,17 +307,6 @@
       makePreview(previewEl, code);
       if (outEl) outEl.innerHTML = '<span class="muted">Aperçu mis à jour.</span>';
       return { error: null };
-    }
-    if (lang === 'asm') {
-      var ra = AsmRun.run(code);
-      outEl.innerHTML = '';
-      if (ra.out) outEl.appendChild(document.createTextNode(ra.out));
-      if (ra.error) {
-        var ea = el('div', 'err', esc('✖ ' + ra.errorType + (ra.errorLine ? ' — ligne ' + ra.errorLine : '') + '\n' + ra.error));
-        ea.style.whiteSpace = 'pre-wrap';
-        outEl.appendChild(ea);
-      } else if (!ra.out) outEl.innerHTML = '<span class="muted">(aucun affichage — utilise print pour voir quelque chose)</span>';
-      return ra;
     }
     if (lang === 'c' || lang === 'cpp' || lang === 'csharp') {
       outEl.innerHTML = '<span class="muted">Ce langage n’a pas de compilateur dans la forge : clique sur « Forger (valider) » pour vérifier la structure de ton code.</span>';
@@ -543,8 +514,8 @@
     d.innerHTML =
       '<span class="kicker">Encore au-delà</span>' +
       '<h2>Les Olympiens du Code</h2>' +
-      '<p style="color:var(--ash);max-width:62ch;margin-top:8px">La formation ultime, vendue à part : l’assembleur x86-64, ' +
-      'le langage qui parle directement au processeur. Un vrai processeur simulé, neuf modules, et une clé qui n’ouvre que ça.</p>' +
+      '<p style="color:var(--ash);max-width:62ch;margin-top:8px">La formation ultime, vendue à part : le C++ que la plupart ' +
+      'des tutoriels n’osent pas aborder — templates, mémoire moderne, concurrence. Neuf modules, et une clé qui n’ouvre que ça.</p>' +
       '<div class="cta-row"><button class="btn primary" data-go="olympiens" style="background:linear-gradient(180deg,var(--olympe),#8a6f1f);border-color:#8a6f1f;color:#241a05">Découvrir la formation</button></div>';
     return d;
   }
@@ -639,7 +610,7 @@
     box.appendChild(grid);
 
     var detailHTML = el('div');
-    detailHTML.innerHTML = '<div class="sec-head"><div><h2>Le programme complet</h2><p>Neuf modules, du premier <code>mov</code> jusqu’au tri d’un tableau entier en assembleur pur.</p></div></div>';
+    detailHTML.innerHTML = '<div class="sec-head"><div><h2>Le programme complet</h2><p>Neuf modules, des templates aux threads, jusqu’à l’assemblage final d’un vrai systeme polymorphe.</p></div></div>';
     var g = el('div', 'grid3');
     p.days.forEach(function (d) {
       var c = el('div', 'card');
@@ -654,8 +625,8 @@
     var why = el('div', 'grid2');
     why.style.marginTop = '30px';
     why.innerHTML =
-      '<div class="card"><h3>Un vrai processeur simulé</h3><p>Chaque instruction s’exécute réellement dans la forge : registres, pile, ' +
-      'drapeaux, sauts, appels de fonction. Ce n’est pas de la lecture, c’est de l’exécution — comme pour Python.</p></div>' +
+      '<div class="card"><h3>Un niveau que peu atteignent</h3><p>Templates, pointeurs intelligents, sémantique de déplacement, ' +
+      'polymorphisme, concurrence : les notions qui séparent quelqu’un qui a suivi un cours de quelqu’un qui construit de vrais systèmes.</p></div>' +
       '<div class="card"><h3>Une formation à part</h3><p>Les Olympiens du Code ne font pas partie d’ARES ULTRA : c’est un produit ' +
       'distinct, avec sa propre clé. Débloquer ULTRA ne débloque jamais cette formation, et inversement.</p></div>';
     box.appendChild(why);
@@ -849,7 +820,7 @@
     }
     if (b.t === 'code') {
       var lang = b.lang || p.lang;
-      var capLabel = { python: 'python', js: 'javascript', html: 'html', asm: 'assembleur', c: 'c', cpp: 'c++', csharp: 'c#' }[lang] || lang;
+      var capLabel = { python: 'python', js: 'javascript', html: 'html', c: 'c', cpp: 'c++', csharp: 'c#' }[lang] || lang;
       var cap = el('div', 'codecap', '<i></i>' + capLabel);
       host.appendChild(cap);
       var pre = el('pre', 'code');
