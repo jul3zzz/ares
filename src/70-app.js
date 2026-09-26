@@ -516,7 +516,7 @@
       '<h2>Les Olympiens du Code</h2>' +
       '<p style="color:var(--ash);max-width:62ch;margin-top:8px">La formation ultime, vendue à part : le C++ que la plupart ' +
       'des tutoriels n’osent pas aborder — templates, mémoire moderne, concurrence. Neuf modules, et une clé qui n’ouvre que ça.</p>' +
-      '<div class="cta-row"><button class="btn primary" data-go="olympiens" style="background:linear-gradient(180deg,var(--olympe),#8a6f1f);border-color:#8a6f1f;color:#241a05">Découvrir la formation</button></div>';
+      '<div class="cta-row"><button class="btn primary" data-go="olympiens" style="background:var(--olympe);border-color:#8a6f1f;color:#241a05">Découvrir la formation</button></div>';
     return d;
   }
 
@@ -547,7 +547,7 @@
       var c = el('div', 'card');
       c.innerHTML = '<h3 style="color:' + p.color + '">' + esc(p.title) + '</h3>' +
         '<p style="margin-bottom:10px">' + esc(p.promise) + '</p>' +
-        '<ul style="padding-left:18px;color:#E4D7CC;font-size:14px;line-height:1.7">' + mods + '</ul>';
+        '<ul style="padding-left:18px;color:var(--ash);font-size:14px;line-height:1.7">' + mods + '</ul>';
       g.appendChild(c);
     });
     detailHTML.appendChild(g);
@@ -812,8 +812,8 @@
     if (b.t === 'table') {
       var t = el('div');
       t.style.overflowX = 'auto';
-      var rows = b.rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td style="padding:9px 12px;border-top:1px solid var(--edge);color:#E4D7CC;font-size:14px">' + c + '</td>'; }).join('') + '</tr>'; }).join('');
-      t.innerHTML = '<table style="width:100%;border-collapse:collapse;margin:16px 0;background:#0E0806;border:1px solid var(--edge);border-radius:9px;overflow:hidden">' +
+      var rows = b.rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td style="padding:9px 12px;border-top:1px solid var(--edge);color:var(--ash);font-size:14px">' + c + '</td>'; }).join('') + '</tr>'; }).join('');
+      t.innerHTML = '<table style="width:100%;border-collapse:collapse;margin:16px 0;background:var(--pit);border:1px solid var(--edge);border-radius:9px;overflow:hidden">' +
         '<thead><tr>' + b.head.map(function (h) { return '<th style="text-align:left;padding:10px 12px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ash2);background:var(--slab)">' + esc(h) + '</th>'; }).join('') + '</tr></thead>' +
         '<tbody>' + rows + '</tbody></table>';
       host.appendChild(t); return;
@@ -877,7 +877,7 @@
     card.style.marginBottom = '18px';
     card.innerHTML =
       '<div class="kicker" style="border-color:var(--edge2);color:var(--ember)">Exercice ' + (i + 1) + (P.ex[exId] ? ' · ✔ réussi' : '') + '</div>' +
-      '<p style="margin:14px 0 4px;font-size:15.5px;color:#E4D7CC">' + ex.brief + '</p>';
+      '<p style="margin:14px 0 4px;font-size:15.5px;color:var(--ash)">' + ex.brief + '</p>';
 
     var ed = el('div', 'editor');
     ed.appendChild(el('div', 'editor-bar',
@@ -945,7 +945,7 @@
       verdict.className = 'verdict on ' + (res.ok ? 'ok' : 'ko');
       var detailHTML = '';
       if (!res.ok && res.expected !== undefined) {
-        detailHTML = '<div style="margin-top:10px;font-family:var(--mono);font-size:12.5px;background:#0C0705;border:1px solid var(--edge);border-radius:7px;padding:10px">' +
+        detailHTML = '<div style="margin-top:10px;font-family:var(--mono);font-size:12.5px;background:#050505;border:1px solid var(--edge);border-radius:7px;padding:10px">' +
           '<div style="color:var(--vine)">attendu :</div><div style="white-space:pre-wrap;color:#CFE8D5">' + esc(res.expected) + '</div>' +
           '<div style="color:var(--blood);margin-top:8px">obtenu :</div><div style="white-space:pre-wrap;color:#F6C4BF">' + esc(res.got || '(rien)') + '</div></div>';
       }

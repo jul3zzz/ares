@@ -6,6 +6,17 @@ collegiens et lyceens. 180 lecons, 225 exercices corriges automatiquement,
 Comptes optionnels (Firebase) pour synchroniser la progression entre appareils.
 Tout tourne dans le navigateur, sans serveur (sauf le compte/sync, optionnel).
 
+DESIGN — « Le Signal » : noir quasi-pur (#0A0A0A), aucune couleur separee
+pour la hierarchie du texte (blanc a 100/58/38% d'opacite au lieu de tons
+chauds), panneaux "verre" (degrade blanc tres subtil + lisere a 9-18%
+d'opacite, jamais de flou colore/glow), boutons en pilule complete. L'ember
+(#F6B23D) reste la seule couleur de marque, utilisee avec parcimonie (CTA
+principal, accents de langage). Tout est pilote par les tokens CSS de
+src/shell.html (--coal/--pit/--slab/--edge/--bone/--ash/--ember/...) : les
+modifier change tout le site d'un coup, aucune page n'a de couleur en dur
+(sauf le contenu pedagogique — ex. #E2762E dans les lecons CSS — qui ne
+doit jamais etre touche, c'est ce que l'eleve doit ecrire).
+
 
 LES FICHIERS
 ------------
