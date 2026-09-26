@@ -183,6 +183,59 @@
   }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   function $(sel) { return document.querySelector(sel); }
+  var reduitMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* eclate un titre en lettres pour l'animation d'entree "coup de marteau"
+     (voir @keyframes strike dans shell.html) ; ne fait rien si l'utilisateur
+     prefere les animations reduites. */
+  function letterReveal(elTitre) {
+    if (!elTitre || reduitMotion) return;
+    var texte = elTitre.textContent;
+    elTitre.setAttribute('aria-label', texte);
+    elTitre.textContent = '';
+    texte.split('').forEach(function (ch, i) {
+      var s = document.createElement('span');
+      s.textContent = ch;
+      s.style.setProperty('--i', i);
+      elTitre.appendChild(s);
+    });
+  }
+
+  /* anime les compteurs (<b class="tab" data-to="N">) de 0 a leur valeur ;
+     utilise automatiquement par show() sur chaque vue affichee. */
+  function animerCompteurs(racine) {
+    racine.querySelectorAll('.stat b[data-to]').forEach(function (elNb) {
+      var cible = parseInt(elNb.dataset.to, 10);
+      if (reduitMotion || isNaN(cible)) { elNb.textContent = cible || elNb.textContent; return; }
+      var depart = null, duree = 850;
+      function etape(ts) {
+        if (!depart) depart = ts;
+        var p = Math.min(1, (ts - depart) / duree);
+        elNb.textContent = Math.round((1 - Math.pow(1 - p, 3)) * cible);
+        if (p < 1) requestAnimationFrame(etape);
+      }
+      setTimeout(function () { requestAnimationFrame(etape); }, 400);
+    });
+  }
+
+  /* revele en fondu-remontee les grands blocs d'une vue au fil du scroll
+     (cartes de parcours, cartes generiques, bannieres ULTRA/Olympiens) ;
+     repli immediat si IntersectionObserver est indisponible. */
+  var ioReveal = null;
+  function reveler(racine) {
+    var cibles = racine.querySelectorAll('.path-card, .card, .pro-banner, .olympe-banner');
+    if (!cibles.length) return;
+    if (reduitMotion || typeof IntersectionObserver === 'undefined') {
+      cibles.forEach(function (c) { c.classList.add('in'); });
+      return;
+    }
+    if (!ioReveal) {
+      ioReveal = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); ioReveal.unobserve(e.target); } });
+      }, { threshold: .15 });
+    }
+    cibles.forEach(function (c) { c.classList.add('reveal'); ioReveal.observe(c); });
+  }
 
   /* coloration syntaxique legere */
   var PYKW = 'False|None|True|and|as|assert|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield';
@@ -396,6 +449,8 @@
       b.classList.toggle('on', b.dataset.go === name || b.dataset.path === name);
     });
     $('#rail').classList.remove('open');
+    animerCompteurs(v);
+    reveler(v);
   }
 
   function wrap(inner) { var w = el('div', 'wrap'); w.appendChild(inner); return w; }
@@ -421,13 +476,14 @@
           '<button class="btn ghost" data-go="pro">🗝️ Voir ARES ULTRA</button>' +
         '</div>' +
         '<div class="stats">' +
-          '<div class="stat"><b>' + stats.nbLecons + '</b><span>leçons</span></div>' +
-          '<div class="stat"><b>' + stats.exos + '</b><span>exercices corrigés</span></div>' +
-          '<div class="stat"><b>' + stats.quiz + '</b><span>questions</span></div>' +
-          '<div class="stat"><b>6</b><span>parcours</span></div>' +
+          '<div class="stat"><b class="tab" data-to="' + stats.nbLecons + '">0</b><span>leçons</span></div>' +
+          '<div class="stat"><b class="tab" data-to="' + stats.exos + '">0</b><span>exercices corrigés</span></div>' +
+          '<div class="stat"><b class="tab" data-to="' + stats.quiz + '">0</b><span>questions</span></div>' +
+          '<div class="stat"><b class="tab" data-to="' + ALL.length + '">0</b><span>parcours</span></div>' +
         '</div>' +
       '</div>';
     box.appendChild(hero);
+    letterReveal(hero.querySelector('h1'));
 
     var h1 = el('div', 'sec-head', '<div><h2>Choisis ta forge</h2><p>Trois parcours libres et complets. Chacun tient en trois jours : un jour = une soirée de travail, ou un mercredi après-midi.</p></div>');
     box.appendChild(h1);
@@ -1642,14 +1698,31 @@
     // Les braises montent, puis se figent après 18 s : la page redevient
     // inactive (batterie, portables) et repart dès qu'on bouge.
     var reveil = Date.now(), anime = false;
+    var PORTEE = 130;   // distance max (px) en dessous de laquelle deux braises sont reliees par un fil
     function frame() {
       if (stop || !document.body.contains(c)) { anime = false; return; }
       ctx.clearRect(0, 0, c.width, c.height);
       braises.forEach(function (b) {
         b.y -= b.v; b.x += b.dx;
         if (b.y < -6) { b.y = c.height + 6; b.x = Math.random() * c.width; }
+      });
+      // les fils : un reseau discret en blanc tres attenue entre braises proches,
+      // dessine avant les points pour rester en arriere-plan.
+      for (var i = 0; i < braises.length; i++) {
+        for (var j = i + 1; j < braises.length; j++) {
+          var dx = braises[i].x - braises[j].x, dy = braises[i].y - braises[j].y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < PORTEE) {
+            ctx.globalAlpha = (1 - d / PORTEE) * 0.12;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(braises[i].x, braises[i].y); ctx.lineTo(braises[j].x, braises[j].y); ctx.stroke();
+          }
+        }
+      }
+      braises.forEach(function (b) {
         ctx.globalAlpha = b.a;
-        ctx.fillStyle = b.r > 1.6 ? '#E2762E' : '#F6B23D';
+        ctx.fillStyle = b.r > 1.6 ? '#C2551B' : '#F6B23D';
         ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
       });
       ctx.globalAlpha = 1;
